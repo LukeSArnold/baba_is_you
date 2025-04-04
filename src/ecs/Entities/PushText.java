@@ -8,10 +8,11 @@ public class PushText {
         var pushText = new Entity();
 
         pushText.add(new ecs.Components.IsPushText());
-        pushText.add(new ecs.Components.Appearance(square, Color.WHITE));
+        pushText.add(new ecs.Components.Appearance(square, new float[]{0.2f, 0.2f, 0.2f}));
         pushText.add(new ecs.Components.Position(x, y));
         pushText.add(new ecs.Components.Collision());
         pushText.add(new ecs.Components.Pushable());
+        pushText.add(new ecs.Components.Text());
 
         return pushText;
     }

@@ -8,10 +8,11 @@ public class StopText {
         var stopText = new Entity();
 
         stopText.add(new ecs.Components.IsStopText());
-        stopText.add(new ecs.Components.Appearance(square, Color.WHITE));
+        stopText.add(new ecs.Components.Appearance(square, new float[]{0.2f, 0.2f, 0.2f}));
         stopText.add(new ecs.Components.Position(x, y));
         stopText.add(new ecs.Components.Collision());
         stopText.add(new ecs.Components.Pushable());
+        stopText.add(new ecs.Components.Text());
 
         return stopText;
     }

@@ -6,17 +6,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Position extends Component {
-    public List<Vector2i> segments = new ArrayList<>();
+    private int x;
+    private int y;
 
     public Position(int x, int y) {
-        segments.add(new Vector2i(x, y));
+        this.x = x;
+        this.y = y;
+    }
+
+    public void setX(int x){
+        this.x = x;
+    }
+
+    public void setY(int y){
+        this.y = y;
     }
 
     public int getX() {
-        return segments.get(0).x;
+        return this.x;
     }
 
     public int getY() {
-        return segments.get(0).y;
+        return this.y;
     }
 }

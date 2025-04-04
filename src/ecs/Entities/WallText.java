@@ -8,10 +8,11 @@ public class WallText {
         var wallText = new Entity();
 
         wallText.add(new ecs.Components.IsWallText());
-        wallText.add(new ecs.Components.Appearance(square, Color.WHITE));
+        wallText.add(new ecs.Components.Appearance(square, new float[]{0.2f, 0.2f, 0.2f}));
         wallText.add(new ecs.Components.Position(x, y));
         wallText.add(new ecs.Components.Collision());
         wallText.add(new ecs.Components.Pushable());
+        wallText.add(new ecs.Components.Text());
 
         return wallText;
     }

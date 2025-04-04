@@ -8,10 +8,11 @@ public class WinText {
         var winText = new Entity();
 
         winText.add(new ecs.Components.IsWinText());
-        winText.add(new ecs.Components.Appearance(square, Color.WHITE));
+        winText.add(new ecs.Components.Appearance(square, new float[]{0.2f, 0.2f, 0.2f}));
         winText.add(new ecs.Components.Position(x, y));
         winText.add(new ecs.Components.Collision());
         winText.add(new ecs.Components.Pushable());
+        winText.add(new ecs.Components.Text());
 
         return winText;
     }

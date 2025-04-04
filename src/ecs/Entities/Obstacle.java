@@ -7,7 +7,7 @@ public class Obstacle {
     public static Entity create(Texture square, int x, int y) {
         var obstacle = new Entity();
 
-        obstacle.add(new ecs.Components.Appearance(square, Color.GREEN));
+        obstacle.add(new ecs.Components.Appearance(square, new float[]{0.2f, 0.2f, 0.2f}));
         obstacle.add(new ecs.Components.Position(x,y));
         obstacle.add(new ecs.Components.Collision());
 

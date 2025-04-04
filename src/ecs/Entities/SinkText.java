@@ -8,10 +8,11 @@ public class SinkText {
         var sinkText = new Entity();
 
         sinkText.add(new ecs.Components.IsSinkText());
-        sinkText.add(new ecs.Components.Appearance(square, Color.WHITE));
+        sinkText.add(new ecs.Components.Appearance(square, new float[]{0.2f, 0.2f, 0.2f}));
         sinkText.add(new ecs.Components.Position(x, y));
         sinkText.add(new ecs.Components.Collision());
         sinkText.add(new ecs.Components.Pushable());
+        sinkText.add(new ecs.Components.Text());
 
         return sinkText;
     }
