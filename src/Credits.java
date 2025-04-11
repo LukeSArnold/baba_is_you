@@ -4,10 +4,10 @@ import edu.usu.graphics.Graphics2D;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class HelpView extends GameStateView {
+public class Credits extends GameStateView {
 
     private KeyboardInput inputKeyboard;
-    private GameStateEnum nextGameState = GameStateEnum.Help;
+    private GameStateEnum nextGameState = GameStateEnum.Credits;
     private Font font;
 
     @Override
@@ -25,7 +25,7 @@ public class HelpView extends GameStateView {
 
     @Override
     public void initializeSession() {
-        nextGameState = GameStateEnum.Help;
+        nextGameState = GameStateEnum.Credits;
     }
 
     @Override

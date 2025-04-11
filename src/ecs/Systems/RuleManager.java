@@ -17,10 +17,13 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class RuleManager extends System {
 
-    final double MOVE_INTERVAL = .1; // seconds
+    final double MOVE_INTERVAL = .2; // seconds
     private double intervalElapsed = 0;
 
     private final long window;
+
+    private boolean won = false;
+    private boolean isYouChange = false;
 
     private final MyRandom random = new MyRandom();
 
@@ -43,6 +46,11 @@ public class RuleManager extends System {
 
     // textures
     Texture blankTexture = new Texture("resources/images/blank.png");
+
+    SoundManager audio = new SoundManager();
+    Sound popSound = audio.load("pop", "resources/audio/Pop.ogg", false);
+    Sound cheerSound = audio.load("pop", "resources/audio/Cheer.ogg", false);
+    Sound xylophoneSound = audio.load("pop", "resources/audio/Xylophone.ogg", false);
 
     int width;
     int height;
@@ -75,6 +83,8 @@ public class RuleManager extends System {
     }
 
     private void updateRules(){
+        Class<? extends Component> previousIsYou = isYou;
+
         for (int col = 0; col < board.length; col++){
             for (int row =0 ; row < board[0].length; row++){
                 if ((board[row][col] != null) && (board[row][col].equals("I"))){
@@ -182,6 +192,10 @@ public class RuleManager extends System {
                 }
             }
         }
+
+        if (previousIsYou != isYou){
+            isYouChange = true;
+        }
     }
 
     private void applyRules(){
@@ -219,8 +233,6 @@ public class RuleManager extends System {
             if (isStop != null) {
                 if (entity.contains(isStop)) {
                     if (!entity.contains(ecs.Components.Stoppable.class)) {
-                        entity.add(new ecs.Components.Particles());
-                        addParticles(entity);
                         entity.add(new ecs.Components.Stoppable());
                     }
                 } else {
@@ -390,7 +402,15 @@ public class RuleManager extends System {
                 int isYouY = isYouPosition.getY();
 
                 if ((winningX == isYouX) && (winningY == isYouY)){
-                    // GAME WON!
+                    // GAME WON
+
+                    if (!this.won) {
+                        SoundManager audio = new SoundManager();
+                        Sound cheer = audio.load("win", "resources/audio/Cheer.ogg", false);
+                        cheer.play();
+
+                        this.won = true;
+                    }
                     for (var allEntities: entities.values()){
                         if (allEntities.contains(ecs.Components.Movable.class)){
                             allEntities.remove(ecs.Components.Movable.class);
@@ -429,7 +449,7 @@ public class RuleManager extends System {
 
                 if ((killingX == isYouX) && (killingY == isYouY)){
                     // destroy component
-                    destroyEntity(entity);
+                    destroyEntity(isYouEntity);
                 }
             }
         }
@@ -528,6 +548,8 @@ public class RuleManager extends System {
     private void updateUndoStack() {
 
         if (!boardsMatch()) {
+            popSound.play();
+
             java.lang.System.out.println("NEW BOARD CONFIG");
             HashMap<Long, ArrayList<Component>> storingHashMap = new HashMap<>();
             for (var entity : entities.values()) {
@@ -646,6 +668,7 @@ public class RuleManager extends System {
     }
 
     private void checkUndo(){
+
         if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
             undo();
         }
@@ -661,6 +684,11 @@ public class RuleManager extends System {
         checkKill();
         checkSink();
         updateUndoStack();
+
+        if (isYouChange){
+            xylophoneSound.play();
+            isYouChange = false;
+        }
 
         if (intervalElapsed > MOVE_INTERVAL) {
             checkUndo();

@@ -12,12 +12,9 @@ import java.lang.reflect.GenericArrayType;
  * entity with movable & position components.
  */
 public class Movement extends System {
-    private SoundManager audio = new SoundManager();
-    private Sound popSound;
 
     public Movement() {
         super(ecs.Components.Appearance.class);
-        popSound = audio.load("pop", "resources/audio/Pop.ogg", false);
     }
 
     @Override
@@ -104,14 +101,13 @@ public class Movement extends System {
     }
 
     private void move(ecs.Entities.Entity entity, int xIncrement, int yIncrement) {
-        popSound.stop();
+
         var movable = entity.get(ecs.Components.Movable.class);
         var position = entity.get(ecs.Components.Position.class);
 
         if (eligiblePosition(entity, movable.input, xIncrement, yIncrement)) {
             position.setX(position.getX() + xIncrement);
             position.setY(position.getY() + yIncrement);
-            popSound.play();
         }
 
         movable.input = Movable.Direction.Stopped;

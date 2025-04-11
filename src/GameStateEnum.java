@@ -2,9 +2,9 @@
 public enum GameStateEnum {
     MainMenu,
     GamePlay,
-    HighScores,
-    Help,
+    Settings,
     About,
+    Credits,
     Quit,
     LevelSelect
 }

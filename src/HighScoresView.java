@@ -7,7 +7,7 @@ import static org.lwjgl.glfw.GLFW.*;
 public class HighScoresView extends GameStateView {
 
     private KeyboardInput inputKeyboard;
-    private GameStateEnum nextGameState = GameStateEnum.HighScores;
+    private GameStateEnum nextGameState = GameStateEnum.Settings;
     private Font font;
 
     @Override
@@ -25,7 +25,7 @@ public class HighScoresView extends GameStateView {
 
     @Override
     public void initializeSession() {
-        nextGameState = GameStateEnum.HighScores;
+        nextGameState = GameStateEnum.Settings;
     }
 
     @Override

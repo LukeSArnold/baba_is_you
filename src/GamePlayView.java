@@ -13,10 +13,6 @@ public class GamePlayView extends GameStateView {
 
     @Override
     public void initialize(Graphics2D graphics) {
-        SoundManager audio = new SoundManager();
-        polkaSound= audio.load("polka", "resources/audio/Polka.ogg", false);
-        polkaSound.play();
-
         super.initialize(graphics);
 
         inputKeyboard = new KeyboardInput(graphics.getWindow());

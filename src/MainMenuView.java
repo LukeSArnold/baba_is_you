@@ -8,9 +8,9 @@ public class MainMenuView extends GameStateView {
 
     private enum MenuState {
         NewGame,
-        HighScores,
-        Help,
+        Settings,
         About,
+        Credits,
         Quit;
 
         public MenuState next() {
@@ -52,9 +52,9 @@ public class MainMenuView extends GameStateView {
         inputKeyboard.registerCommand(GLFW_KEY_ENTER, true, (double elapsedTime) -> {
             nextGameState = switch (currentSelection) {
                 case MenuState.NewGame -> GameStateEnum.LevelSelect;
-                case MenuState.HighScores -> GameStateEnum.HighScores;
-                case MenuState.Help -> GameStateEnum.Help;
+                case MenuState.Settings -> GameStateEnum.Settings;
                 case MenuState.About -> GameStateEnum.About;
+                case MenuState.Credits -> GameStateEnum.Credits;
                 case MenuState.Quit -> GameStateEnum.Quit;
             };
         });
@@ -91,9 +91,9 @@ public class MainMenuView extends GameStateView {
         final float HEIGHT_MENU_ITEM = 0.075f;
         float top = -0.25f;
         top = renderMenuItem(currentSelection == MenuState.NewGame ? fontSelected : fontMenu, "New Game", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.NewGame ? Color.YELLOW : Color.BLUE);
-        top = renderMenuItem(currentSelection == MenuState.HighScores ? fontSelected : fontMenu, "High Scores", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.HighScores ? Color.YELLOW : Color.BLUE);
-        top = renderMenuItem(currentSelection == MenuState.Help ? fontSelected : fontMenu, "Help", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.Help ? Color.YELLOW : Color.BLUE);
+        top = renderMenuItem(currentSelection == MenuState.Settings ? fontSelected : fontMenu, "Settings", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.Settings ? Color.YELLOW : Color.BLUE);
         top = renderMenuItem(currentSelection == MenuState.About ? fontSelected : fontMenu, "About", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.About ? Color.YELLOW : Color.BLUE);
+        top = renderMenuItem(currentSelection == MenuState.Credits ? fontSelected : fontMenu, "Credits", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.Credits ? Color.YELLOW : Color.BLUE);
         renderMenuItem(currentSelection == MenuState.Quit ? fontSelected : fontMenu, "Quit", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.Quit ? Color.YELLOW : Color.BLUE);
     }
 
