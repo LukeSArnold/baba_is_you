@@ -11,7 +11,6 @@ public class BabaText {
         babaText.add(new ecs.Components.IsBabaText());
         babaText.add(new ecs.Components.Appearance(spriteSheet, new float[]{0.2f, 0.2f, 0.2f}));
         babaText.add(new ecs.Components.Position(x, y));
-        babaText.add(new ecs.Components.Collision());
         babaText.add(new ecs.Components.Pushable());
         babaText.add(new ecs.Components.Text());
 

@@ -1,3 +1,5 @@
+import edu.usu.audio.Sound;
+import edu.usu.audio.SoundManager;
 import edu.usu.graphics.Graphics2D;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -7,9 +9,14 @@ public class GamePlayView extends GameStateView {
     private KeyboardInput inputKeyboard;
     private GameStateEnum nextGameState = GameStateEnum.GamePlay;
     private GameModel gameModel;
+    private Sound polkaSound;
 
     @Override
     public void initialize(Graphics2D graphics) {
+        SoundManager audio = new SoundManager();
+        polkaSound= audio.load("polka", "resources/audio/Polka.ogg", false);
+        polkaSound.play();
+
         super.initialize(graphics);
 
         inputKeyboard = new KeyboardInput(graphics.getWindow());

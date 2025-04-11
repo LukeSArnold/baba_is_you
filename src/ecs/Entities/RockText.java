@@ -10,7 +10,6 @@ public class RockText {
         rockText.add(new ecs.Components.IsRockText());
         rockText.add(new ecs.Components.Appearance(square, new float[]{0.2f, 0.2f, 0.2f}));
         rockText.add(new ecs.Components.Position(x, y));
-        rockText.add(new ecs.Components.Collision());
         rockText.add(new ecs.Components.Pushable());
         rockText.add(new ecs.Components.Text());
 

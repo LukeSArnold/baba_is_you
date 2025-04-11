@@ -10,7 +10,6 @@ public class KillText {
         killText.add(new ecs.Components.IsKillText());
         killText.add(new ecs.Components.Appearance(square, new float[]{0.2f, 0.2f, 0.2f}));
         killText.add(new ecs.Components.Position(x, y));
-        killText.add(new ecs.Components.Collision());
         killText.add(new ecs.Components.Pushable());
         killText.add(new ecs.Components.Text());
 

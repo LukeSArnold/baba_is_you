@@ -3,6 +3,7 @@ package ecs.Systems;
 import ecs.Components.Component;
 import ecs.Entities.Entity;
 
+import java.io.Console;
 import java.util.HashMap;
 import java.util.Map;
 

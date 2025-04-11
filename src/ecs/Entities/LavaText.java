@@ -10,7 +10,6 @@ public class LavaText {
         lavaText.add(new ecs.Components.IsLavaText());
         lavaText.add(new ecs.Components.Appearance(square, new float[]{0.2f, 0.2f, 0.2f}));
         lavaText.add(new ecs.Components.Position(x, y));
-        lavaText.add(new ecs.Components.Collision());
         lavaText.add(new ecs.Components.Pushable());
         lavaText.add(new ecs.Components.Text());
 

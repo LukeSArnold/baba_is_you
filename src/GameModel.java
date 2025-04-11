@@ -36,7 +36,7 @@ public class GameModel {
             ;
         });
 
-        sysRuleManager = new RuleManager(level.width, level.height, GRID_SIZE);
+        sysRuleManager = new RuleManager(level.width, level.height, GRID_SIZE, graphics.getWindow());
         sysMovement = new Movement();
         sysKeyboardInput = new KeyboardInput(graphics.getWindow());
         sysAnimatedSprites = new AnimatedSprite();

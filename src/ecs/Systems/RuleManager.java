@@ -3,27 +3,36 @@ package ecs.Systems;
 import ecs.Components.*;
 import ecs.Entities.Entity;
 import ecs.Particle;
-import edu.usu.graphics.Graphics2D;
+import edu.usu.audio.Sound;
+import edu.usu.audio.SoundManager;
 import edu.usu.graphics.Texture;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 public class RuleManager extends System {
 
     final double MOVE_INTERVAL = .1; // seconds
+    private double intervalElapsed = 0;
+
+    private final long window;
 
     private final MyRandom random = new MyRandom();
+
 
     private final float CELL_SIZE;
     private final float OFFSET_X;
     private final float OFFSET_Y;
 
     private String[][] board;
+    private String[][] previousBoard;
+
+    private final Stack<HashMap<Long, ArrayList<Component>>> undoStack = new Stack<>();
 
     private Class<? extends Component> isPush;
     private Class<? extends Component> isWin;
@@ -38,11 +47,10 @@ public class RuleManager extends System {
     int width;
     int height;
 
+    private final HashMap<String, Class<? extends Component>> componentHashMap = new HashMap<>();
 
 
-    private HashMap<String, Class<? extends Component>> componentHashMap = new HashMap<>();
-
-    public RuleManager(int width, int height, int gridSize){
+    public RuleManager(int width, int height, int gridSize, long window){
         // rule manager cares about every component type
         super(ecs.Components.Appearance.class);
 
@@ -61,7 +69,9 @@ public class RuleManager extends System {
         CELL_SIZE = (1.0f - OFFSET_X * 2) / gridSize;
 
         board = new String[width][height];
+        previousBoard = board;
 
+        this.window = window;
     }
 
     private void updateRules(){
@@ -257,6 +267,10 @@ public class RuleManager extends System {
                     if (entity.contains(ecs.Components.Winnable.class)) {
                         entity.remove(ecs.Components.Winnable.class);
                     }
+                }
+            } else {
+                if (entity.contains(ecs.Components.Winnable.class)) {
+                    entity.remove(ecs.Components.Winnable.class);
                 }
             }
 
@@ -511,13 +525,146 @@ public class RuleManager extends System {
         }
     }
 
+    private void updateUndoStack() {
+
+        if (!boardsMatch()) {
+            java.lang.System.out.println("NEW BOARD CONFIG");
+            HashMap<Long, ArrayList<Component>> storingHashMap = new HashMap<>();
+            for (var entity : entities.values()) {
+                storingHashMap = storeCopy(entity, storingHashMap);
+            }
+            undoStack.push(storingHashMap);
+        }
+        previousBoard = board;
+    }
+
+    private void undo(){
+        if (!undoStack.isEmpty()){
+            // get previous gameStates from stack
+            var previousState = undoStack.pop();
+            for (var entity: entities.values()){
+                // previous states for each entity stored in the hash map
+                var previousEntityStates = previousState.get(entity.getId());
+                for (Component component: previousEntityStates){
+                    if (entity.contains(component.getClass())){
+                        entity.remove(component.getClass());
+                        entity.add(component);
+                    }
+                    else {
+                        entity.add(component);
+                    }
+                }
+
+            }
+        }
+    }
+
+    private boolean boardsMatch(){
+        for (int row = 0; row <width; row ++){
+            for (int col = 0; col < height; col ++){
+                if (board[row][col] != previousBoard[row][col]){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private HashMap<Long, ArrayList<ecs.Components.Component>> storeCopy
+            (Entity entity, HashMap<Long, ArrayList<ecs.Components.Component>> hashMap){
+
+        ArrayList<ecs.Components.Component> componentsList = new ArrayList<>();
+
+        if (entity.contains(ecs.Components.Appearance.class)){
+            Appearance entityAppearance = entity.get(ecs.Components.Appearance.class);
+            Appearance newAppearance = new ecs.Components.Appearance(entityAppearance.spriteSheet, entityAppearance.spriteTime);
+            componentsList.add(newAppearance);
+        }
+
+        if (entity.contains(ecs.Components.IsBaba.class)){
+            componentsList.add(new IsBaba());
+        }
+
+        if (entity.contains(ecs.Components.IsBabaText.class)){
+            componentsList.add(new IsBabaText());
+        }
+
+        if (entity.contains(ecs.Components.IsFlag.class)){
+            componentsList.add(new IsFlag());
+        }
+
+        if (entity.contains(ecs.Components.IsHedge.class)){
+            componentsList.add(new IsHedge());
+        }
+
+        if (entity.contains(ecs.Components.IsLava.class)){
+            componentsList.add(new IsLava());
+        }
+
+        if (entity.contains(ecs.Components.IsRock.class)){
+            componentsList.add(new IsRock());
+        }
+
+        if (entity.contains(ecs.Components.IsWall.class)){
+            componentsList.add(new IsWall());
+        }
+
+        if (entity.contains(ecs.Components.IsWater.class)){
+            componentsList.add(new IsWater());
+        }
+
+        if (entity.contains(ecs.Components.KeyboardControlled.class)){
+            KeyboardControlled entityKeyboardControlled = entity.get(ecs.Components.KeyboardControlled.class);
+            KeyboardControlled keyboardControlledCopy = new KeyboardControlled(entityKeyboardControlled.keys);
+            componentsList.add(keyboardControlledCopy);
+        }
+
+        if (entity.contains(ecs.Components.Killing.class)){
+            componentsList.add(new Killing());
+        }
+
+
+        if (entity.contains(ecs.Components.Movable.class)){
+            Movable entityMovable = entity.get(ecs.Components.Movable.class);
+            Movable movableCopy = new Movable(entityMovable.input, entityMovable.moveInterval);
+            componentsList.add(movableCopy);
+        }
+
+        if (entity.contains(ecs.Components.Particles.class)){
+            componentsList.add(new Particles());
+        }
+
+        if (entity.contains(ecs.Components.Position.class)){
+            Position entityPosition = entity.get(ecs.Components.Position.class);
+            Position positionCopy = new Position(entityPosition.getX(), entityPosition.getY());
+            componentsList.add(positionCopy);
+        }
+
+        hashMap.put(entity.getId(), componentsList);
+
+        return hashMap;
+    }
+
+    private void checkUndo(){
+        if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
+            undo();
+        }
+    }
+
     @Override
     public void update(double elapsedTime) {
+        intervalElapsed += elapsedTime;
         updateBoardAll();
         updateRules();
         applyRules();
         checkWin();
         checkKill();
         checkSink();
+        updateUndoStack();
+
+        if (intervalElapsed > MOVE_INTERVAL) {
+            checkUndo();
+            intervalElapsed -= MOVE_INTERVAL;
+        }
     }
 }

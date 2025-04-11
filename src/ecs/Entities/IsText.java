@@ -10,7 +10,6 @@ public class IsText {
         isText.add(new ecs.Components.IsIsText());
         isText.add(new ecs.Components.Appearance(square, new float[]{0.2f, 0.2f, 0.2f}));
         isText.add(new ecs.Components.Position(x, y));
-        isText.add(new ecs.Components.Collision());
         isText.add(new ecs.Components.Pushable());
         isText.add(new ecs.Components.Text());
 

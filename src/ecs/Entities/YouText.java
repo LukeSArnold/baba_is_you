@@ -10,7 +10,6 @@ public class YouText {
         youText.add(new ecs.Components.IsYouText());
         youText.add(new ecs.Components.Appearance(square, new float[]{0.2f, 0.2f, 0.2f}));
         youText.add(new ecs.Components.Position(x, y));
-        youText.add(new ecs.Components.Collision());
         youText.add(new ecs.Components.Pushable());
         youText.add(new ecs.Components.Text());
 
