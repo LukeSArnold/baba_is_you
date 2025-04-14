@@ -22,7 +22,7 @@ public class Game {
                 put(GameStateEnum.MainMenu, new MainMenuView());
                 put(GameStateEnum.LevelSelect, new LevelSelectMenu());
                 put(GameStateEnum.GamePlay, new GamePlayView());
-                put(GameStateEnum.Settings, new HighScoresView());
+                put(GameStateEnum.Settings, new SettingsView());
                 put(GameStateEnum.About, new AboutView());
             }
         };

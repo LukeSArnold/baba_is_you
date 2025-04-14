@@ -1,4 +1,6 @@
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -35,6 +37,10 @@ public class KeyboardInput {
             // For the next time around, remember the current state of the key (pressed or not)
             keysPressed.put(entry.getKey(), glfwGetKey(window, entry.getKey()) == GLFW_PRESS);
         }
+    }
+    
+    public Collection<Map.Entry<Integer, CommandEntry>> getCommandEntries (){
+        return commandEntries.entrySet();
     }
 
     /**

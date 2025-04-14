@@ -13,9 +13,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
+import utils.*;
+
+
 import static org.lwjgl.glfw.GLFW.*;
 
 public class RuleManager extends System {
+
+    private Serializer serializer;
+    private KeyBoardConfig keyBoardConfig;
 
     final double MOVE_INTERVAL = .2; // seconds
     private double intervalElapsed = 0;
@@ -80,6 +86,11 @@ public class RuleManager extends System {
         previousBoard = board;
 
         this.window = window;
+
+        this.serializer = new Serializer();
+        this.keyBoardConfig = new KeyBoardConfig();
+        this.serializer.loadKeyboardConfig(this.keyBoardConfig);
+
     }
 
     private void updateRules(){
@@ -207,10 +218,10 @@ public class RuleManager extends System {
                     }
                     if (!entity.contains(ecs.Components.KeyboardControlled.class)) {
                         entity.add(new ecs.Components.KeyboardControlled(Map.of(
-                                GLFW_KEY_UP, ecs.Components.Movable.Direction.Up,
-                                GLFW_KEY_DOWN, ecs.Components.Movable.Direction.Down,
-                                GLFW_KEY_LEFT, ecs.Components.Movable.Direction.Left,
-                                GLFW_KEY_RIGHT, ecs.Components.Movable.Direction.Right
+                                this.keyBoardConfig.up, Movable.Direction.Up,
+                                this.keyBoardConfig.left, Movable.Direction.Left,
+                                this.keyBoardConfig.right, Movable.Direction.Right,
+                                this.keyBoardConfig.down, Movable.Direction.Down
                         )));
                     }
                 } else {
@@ -676,23 +687,26 @@ public class RuleManager extends System {
 
     @Override
     public void update(double elapsedTime) {
-        intervalElapsed += elapsedTime;
-        updateBoardAll();
-        updateRules();
-        applyRules();
-        checkWin();
-        checkKill();
-        checkSink();
-        updateUndoStack();
+        if (this.keyBoardConfig != null && this.keyBoardConfig.initialized) {
 
-        if (isYouChange){
-            xylophoneSound.play();
-            isYouChange = false;
-        }
+            intervalElapsed += elapsedTime;
+            updateBoardAll();
+            updateRules();
+            applyRules();
+            checkWin();
+            checkKill();
+            checkSink();
+            updateUndoStack();
 
-        if (intervalElapsed > MOVE_INTERVAL) {
-            checkUndo();
-            intervalElapsed -= MOVE_INTERVAL;
+            if (isYouChange) {
+                xylophoneSound.play();
+                isYouChange = false;
+            }
+
+            if (intervalElapsed > MOVE_INTERVAL) {
+                checkUndo();
+                intervalElapsed -= MOVE_INTERVAL;
+            }
         }
     }
 }

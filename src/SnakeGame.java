@@ -5,7 +5,7 @@ public class SnakeGame {
 
     public static void main(String[] args) {
 
-        try (Graphics2D graphics = new Graphics2D(1980, 1080 , "ECS - Snake Game")) {
+        try (Graphics2D graphics = new Graphics2D(1920, 1080 , "Baba Is You")) {
             graphics.initialize(Color.BLACK);
             Game game = new Game(graphics);
             game.initialize();

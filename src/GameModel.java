@@ -10,7 +10,6 @@ import java.util.List;
 
 public class GameModel {
     private final int GRID_SIZE = 50;
-    private final int OBSTACLE_COUNT = 15;
 
     private final List<Entity> removeThese = new ArrayList<>();
     private final List<Entity> addThese = new ArrayList<>();
@@ -30,12 +29,6 @@ public class GameModel {
         level = levelMapper.levels.get(levelId);
 
         sysRenderer = new Renderer(graphics, level.width);
-        sysCollision = new Collision((Entity entity) -> {
-            // Remove the exist food
-//            removeThese.add(entity);
-            ;
-        });
-
         sysRuleManager = new RuleManager(level.width, level.height, GRID_SIZE, graphics.getWindow());
         sysMovement = new Movement();
         sysKeyboardInput = new KeyboardInput(graphics.getWindow());
@@ -48,11 +41,8 @@ public class GameModel {
     }
 
     public void update(double elapsedTime) {
-        // Because ECS framework, input processing is now part of the update
         sysKeyboardInput.update(elapsedTime);
-        // Now do the normal update
         sysMovement.update(elapsedTime);
-        sysCollision.update(elapsedTime);
         sysRuleManager.update(elapsedTime);
         sysAnimatedSprites.update(elapsedTime);
         sysParticles.update(elapsedTime);
@@ -67,7 +57,6 @@ public class GameModel {
         }
         addThese.clear();
 
-        // Because ECS framework, rendering is now part of the update
         sysRenderer.update(elapsedTime);
     }
 
@@ -183,7 +172,6 @@ public class GameModel {
     private void addEntity(Entity entity) {
         sysKeyboardInput.add(entity);
         sysMovement.add(entity);
-        sysCollision.add(entity);
         sysRenderer.add(entity);
         sysRuleManager.add(entity);
         sysAnimatedSprites.add(entity);
@@ -193,7 +181,6 @@ public class GameModel {
     private void removeEntity(Entity entity) {
         sysKeyboardInput.remove(entity.getId());
         sysMovement.remove(entity.getId());
-        sysCollision.remove(entity.getId());
         sysRenderer.remove(entity.getId());
         sysRuleManager.remove(entity.getId());
         sysAnimatedSprites.remove(entity.getId());
