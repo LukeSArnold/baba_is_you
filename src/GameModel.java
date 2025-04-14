@@ -4,6 +4,8 @@ import ecs.Systems.AnimatedSprite;
 import ecs.Systems.KeyboardInput;
 import edu.usu.graphics.*;
 import org.joml.Vector2f;
+import utils.KeyBoardConfig;
+import utils.Serializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,11 +27,23 @@ public class GameModel {
     private LevelMapper levelMapper = new LevelMapper("levels-all.bbiy");
     private Level level;
 
+    private KeyBoardConfig config;
+    private Serializer serializer;
+
+    public GameModel(Serializer serializer){
+        this.serializer = serializer;
+
+    }
+
     public void initialize(Graphics2D graphics, int levelId) {
         level = levelMapper.levels.get(levelId);
 
+        this.config = new KeyBoardConfig();
+
+        serializer.loadKeyboardConfig(this.config);
+
         sysRenderer = new Renderer(graphics, level.width);
-        sysRuleManager = new RuleManager(level.width, level.height, GRID_SIZE, graphics.getWindow());
+        sysRuleManager = new RuleManager(level.width, level.height, GRID_SIZE, graphics.getWindow(), config);
         sysMovement = new Movement();
         sysKeyboardInput = new KeyboardInput(graphics.getWindow());
         sysAnimatedSprites = new AnimatedSprite();
@@ -41,23 +55,25 @@ public class GameModel {
     }
 
     public void update(double elapsedTime) {
-        sysKeyboardInput.update(elapsedTime);
-        sysMovement.update(elapsedTime);
-        sysRuleManager.update(elapsedTime);
-        sysAnimatedSprites.update(elapsedTime);
-        sysParticles.update(elapsedTime);
+        if (config.initialized) {
+            sysKeyboardInput.update(elapsedTime);
+            sysMovement.update(elapsedTime);
+            sysRuleManager.update(elapsedTime);
+            sysAnimatedSprites.update(elapsedTime);
+            sysParticles.update(elapsedTime);
 
-        for (var entity : removeThese) {
-            removeEntity(entity);
+            for (var entity : removeThese) {
+                removeEntity(entity);
+            }
+            removeThese.clear();
+
+            for (var entity : addThese) {
+                addEntity(entity);
+            }
+            addThese.clear();
+
+            sysRenderer.update(elapsedTime);
         }
-        removeThese.clear();
-
-        for (var entity : addThese) {
-            addEntity(entity);
-        }
-        addThese.clear();
-
-        sysRenderer.update(elapsedTime);
     }
 
     private void initializeLevelEntities(Level level){

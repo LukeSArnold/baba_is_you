@@ -1,7 +1,8 @@
 import edu.usu.graphics.Graphics2D;
+import utils.Serializer;
 
 public interface IGameState {
-    void initialize(Graphics2D graphics);
+    void initialize(Graphics2D graphics, Serializer serializer);
 
     void initializeSession();
 

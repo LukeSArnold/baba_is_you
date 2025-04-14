@@ -1,6 +1,7 @@
 import edu.usu.graphics.Color;
 import edu.usu.graphics.Font;
 import edu.usu.graphics.Graphics2D;
+import utils.Serializer;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -17,8 +18,8 @@ public class LevelSelectMenu extends GameStateView {
     private Font fontSelected;
 
     @Override
-    public void initialize(Graphics2D graphics) {
-        super.initialize(graphics);
+    public void initialize(Graphics2D graphics, Serializer serializer) {
+        super.initialize(graphics, serializer);
 
         fontMenu = new Font("resources/fonts/Roboto-Regular.ttf", 48, false);
         fontSelected = new Font("resources/fonts/Roboto-Bold.ttf", 48, false);

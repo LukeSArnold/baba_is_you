@@ -20,8 +20,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class RuleManager extends System {
 
-    private Serializer serializer;
-    private KeyBoardConfig keyBoardConfig;
+    private final KeyBoardConfig keyBoardConfig;
 
     final double MOVE_INTERVAL = .2; // seconds
     private double intervalElapsed = 0;
@@ -64,7 +63,7 @@ public class RuleManager extends System {
     private final HashMap<String, Class<? extends Component>> componentHashMap = new HashMap<>();
 
 
-    public RuleManager(int width, int height, int gridSize, long window){
+    public RuleManager(int width, int height, int gridSize, long window, KeyBoardConfig keyBoardConfig){
         // rule manager cares about every component type
         super(ecs.Components.Appearance.class);
 
@@ -87,10 +86,7 @@ public class RuleManager extends System {
 
         this.window = window;
 
-        this.serializer = new Serializer();
-        this.keyBoardConfig = new KeyBoardConfig();
-        this.serializer.loadKeyboardConfig(this.keyBoardConfig);
-
+        this.keyBoardConfig = keyBoardConfig;
     }
 
     private void updateRules(){
@@ -216,6 +212,7 @@ public class RuleManager extends System {
                     if (!entity.contains(ecs.Components.Movable.class)) {
                         entity.add(new ecs.Components.Movable(Movable.Direction.Stopped, MOVE_INTERVAL));
                     }
+
                     if (!entity.contains(ecs.Components.KeyboardControlled.class)) {
                         entity.add(new ecs.Components.KeyboardControlled(Map.of(
                                 this.keyBoardConfig.up, Movable.Direction.Up,

@@ -1,10 +1,12 @@
 import edu.usu.graphics.Graphics2D;
+import utils.KeyBoardConfig;
+import utils.Serializer;
 
 public abstract class GameStateView implements IGameState {
     protected Graphics2D graphics;
 
     @Override
-    public void initialize(Graphics2D graphics) {
+    public void initialize(Graphics2D graphics, Serializer serializer) {
         this.graphics = graphics;
     }
 

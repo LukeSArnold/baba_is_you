@@ -1,6 +1,8 @@
 import edu.usu.graphics.Color;
 import edu.usu.graphics.Font;
 import edu.usu.graphics.Graphics2D;
+import utils.KeyBoardConfig;
+import utils.Serializer;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -9,9 +11,10 @@ public class SettingsView extends GameStateView {
     private KeyboardInput inputKeyboard;
     private GameStateEnum nextGameState = GameStateEnum.Settings;
     private Font font;
+    private KeyBoardConfig config;
+    private Serializer serializer;
 
     private enum MenuState {
-        Resolution,
         Up,
         Left,
         Right,
@@ -33,13 +36,15 @@ public class SettingsView extends GameStateView {
         }
     }
 
-    private SettingsView.MenuState currentSelection = SettingsView.MenuState.Resolution;
+    private SettingsView.MenuState currentSelection = SettingsView.MenuState.Up;
     private Font fontMenu;
     private Font fontSelected;
 
     @Override
-    public void initialize(Graphics2D graphics) {
-        super.initialize(graphics);
+    public void initialize(Graphics2D graphics, Serializer serializer) {
+        super.initialize(graphics, serializer);
+
+        this.serializer = serializer;
 
         fontMenu = new Font("resources/fonts/Roboto-Regular.ttf", 48, false);
         fontSelected = new Font("resources/fonts/Roboto-Bold.ttf", 48, false);
@@ -61,7 +66,9 @@ public class SettingsView extends GameStateView {
 
     @Override
     public void initializeSession() {
-        nextGameState = GameStateEnum.Settings;
+        this.config = new KeyBoardConfig();
+        this.nextGameState = GameStateEnum.Settings;
+        serializer.loadKeyboardConfig(this.config);
     }
 
     @Override
@@ -88,11 +95,26 @@ public class SettingsView extends GameStateView {
 
     @Override
     public void render(double elapsedTime) {
+
         final float HEIGHT_MENU_ITEM = 0.075f;
         float top = -0.25f;
 
-//        top = renderMenuItem(currentSelection == MenuState.Resolution ? fontSelected : fontMenu, "Resolution", top, HEIGHT_MENU_ITEM, currentSelection == SettingsView.MenuState.Resolution ? Color.YELLOW : Color.BLUE);
-//        top =renderMenuItem(currentSelection == SettingsView.MenuState.Up ? fontSelected : fontMenu, "Up", top, HEIGHT_MENU_ITEM, currentSelection == SettingsView.MenuState.Up ? Color.YELLOW : Color.BLUE);
+        if (this.config.initialized) {
+
+            top = renderMenuItem(
+                    currentSelection == SettingsView.MenuState.Up ? fontSelected : fontMenu,
+                    "Up",
+                    top,
+                    HEIGHT_MENU_ITEM,
+                    currentSelection == SettingsView.MenuState.Up ? Color.YELLOW : Color.BLUE);
+
+            top = renderMenuItem(currentSelection == SettingsView.MenuState.Up ? fontSelected : fontMenu,
+                    "" + (char) this.config.up,
+                    top,
+                    HEIGHT_MENU_ITEM,
+                    currentSelection == SettingsView.MenuState.Up ? Color.YELLOW : Color.BLUE);
+        }
+
 //        renderMenuItem(currentSelection == SettingsView.MenuState.Left ? fontSelected : fontMenu, "Left", top, HEIGHT_MENU_ITEM, true, currentSelection == SettingsView.MenuState.Left ? Color.YELLOW : Color.BLUE);
 //        top = renderMenuItem(currentSelection == SettingsView.MenuState.Right ? fontSelected : fontMenu, "Right", top, HEIGHT_MENU_ITEM, false, currentSelection == SettingsView.MenuState.Right ? Color.YELLOW : Color.BLUE);
 //        top = renderMenuItem(currentSelection == SettingsView.MenuState.Down ? fontSelected : fontMenu, "Down", top, HEIGHT_MENU_ITEM, currentSelection == SettingsView.MenuState.Down ? Color.YELLOW : Color.BLUE);

@@ -1,6 +1,8 @@
 import edu.usu.graphics.Color;
 import edu.usu.graphics.Font;
 import edu.usu.graphics.Graphics2D;
+import utils.KeyBoardConfig;
+import utils.Serializer;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -11,8 +13,8 @@ public class Credits extends GameStateView {
     private Font font;
 
     @Override
-    public void initialize(Graphics2D graphics) {
-        super.initialize(graphics);
+    public void initialize(Graphics2D graphics, Serializer serializer) {
+        super.initialize(graphics, serializer);
 
         font = new Font("resources/fonts/Roboto-Regular.ttf", 48, false);
 

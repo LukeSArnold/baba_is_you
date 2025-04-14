@@ -1,4 +1,5 @@
 import edu.usu.graphics.*;
+import utils.Serializer;
 
 import java.util.HashMap;
 
@@ -12,8 +13,11 @@ public class Game {
     GameStateEnum prevStateEnum = GameStateEnum.MainMenu;
     private int nextLevel;
 
+    private Serializer serializer;
+
     public Game(Graphics2D graphics) {
         this.graphics = graphics;
+        this.serializer = new Serializer();
     }
 
     public void initialize() {
@@ -29,7 +33,7 @@ public class Game {
 
         // Give all game states a chance to initialize, other than the constructor
         for (var state : states.values()) {
-            state.initialize(graphics);
+            state.initialize(graphics, serializer);
         }
 
         currentState = states.get(GameStateEnum.MainMenu);

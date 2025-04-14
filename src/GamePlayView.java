@@ -1,6 +1,5 @@
-import edu.usu.audio.Sound;
-import edu.usu.audio.SoundManager;
 import edu.usu.graphics.Graphics2D;
+import utils.Serializer;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -9,11 +8,13 @@ public class GamePlayView extends GameStateView {
     private KeyboardInput inputKeyboard;
     private GameStateEnum nextGameState = GameStateEnum.GamePlay;
     private GameModel gameModel;
-    private Sound polkaSound;
+    private Serializer serializer;
 
     @Override
-    public void initialize(Graphics2D graphics) {
-        super.initialize(graphics);
+    public void initialize(Graphics2D graphics, Serializer serializer) {
+        super.initialize(graphics, serializer);
+
+        this.serializer = serializer;
 
         inputKeyboard = new KeyboardInput(graphics.getWindow());
         // When ESC is pressed, set the appropriate new game state
@@ -24,14 +25,14 @@ public class GamePlayView extends GameStateView {
 
     @Override
     public void initializeSession() {
-        gameModel = new GameModel();
+        gameModel = new GameModel(serializer);
         gameModel.initialize(graphics, 0);
         nextGameState = GameStateEnum.GamePlay;
     }
 
     @Override
     public void initializeSession(int level) {
-        gameModel = new GameModel();
+        gameModel = new GameModel(serializer);
         gameModel.initialize(graphics, level);
         nextGameState = GameStateEnum.GamePlay;
     }

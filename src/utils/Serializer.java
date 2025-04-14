@@ -89,6 +89,8 @@ public class Serializer implements Runnable {
             lockSignal.unlock();
 
             tInternal.join();
+
+            System.out.println("SHUT DOWN");
         } catch (Exception ex) {
             System.out.printf("Failure to gracefully shutdown thread: %s\n", ex.getMessage());
         }
@@ -120,6 +122,7 @@ public class Serializer implements Runnable {
             this.keyBoardConfig.restart = config.restart;
             this.keyBoardConfig.undo = config.undo;
             this.keyBoardConfig.initialized = true;
+            System.out.println("keyboard config initialized");
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }

@@ -13,7 +13,6 @@ public class KeyBoardConfig {
         this.down = down;
         this.restart = restart;
         this.undo = undo;
-
     }
 
     public boolean initialized;
