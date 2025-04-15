@@ -1,4 +1,5 @@
 package ecs.Systems;
+import ecs.ParticleSystem;
 import edu.usu.graphics.Color;
 import edu.usu.graphics.Graphics2D;
 import edu.usu.graphics.Texture;
@@ -16,10 +17,10 @@ public class ParticleSystemRenderer {
         }
     }
 
-//    public void render(Graphics2D graphics, ParticleSystem system) {
-//        for (var particle : system.getParticles()) {
-//            graphics.draw(texParticle, particle.area, particle.rotation, particle.center, Color.WHITE);
-//        }
-//    }
+    public void render(Graphics2D graphics, ParticleSystem system) {
+        for (var particle : system.getParticles()) {
+            graphics.draw(texParticle, particle.area, particle.rotation, particle.center, Color.WHITE);
+        }
+    }
 }
 

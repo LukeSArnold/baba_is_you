@@ -1,17 +1,13 @@
 package ecs.Systems;
-
 import ecs.Components.*;
 import ecs.Entities.Entity;
-import ecs.Particle;
+import ecs.ParticleSystem;
 import edu.usu.audio.Sound;
 import edu.usu.audio.SoundManager;
+import edu.usu.graphics.Graphics2D;
 import edu.usu.graphics.Texture;
-import org.joml.Vector2f;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 import utils.*;
 
@@ -20,36 +16,39 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class RuleManager extends System {
 
+    // keyboard control map for newly configuration "isYou" objects
     private final KeyBoardConfig keyBoardConfig;
 
+    // settings for updating new Keyboard controlled elements after rule changes
     final double MOVE_INTERVAL = .1; // seconds
     private double intervalElapsed = 0;
 
+    // window needed to detect keyboard inputs
     private final long window;
 
     private boolean won = false;
     private boolean isYouChange = false;
 
-    private final MyRandom random = new MyRandom();
+    // particles systems declared here due to requirement to expose certain methods
+    private ParticleSystemRenderer particleSystemRenderer;
+    private ParticleSystem particleSystem;
+    private Graphics2D graphics;
 
-
-    private final float CELL_SIZE;
-    private final float OFFSET_X;
-    private final float OFFSET_Y;
-
+    // configurations to keep track of board changes
     private String[][] board;
     private String[][] previousBoard;
 
+    // logs for undo and beginning states
     private Stack<HashMap<Long, ArrayList<Component>>> undoStack = new Stack<>();
-    private HashMap<Long, ArrayList<Component>> initialState = new HashMap<>();
+    private final HashMap<Long, ArrayList<Component>> initialState = new HashMap<>();
 
+    // component logs for rule changes
     private Class<? extends Component> isWall;
     private Class<? extends Component> isRock;
     private Class<? extends Component> isWater;
     private Class<? extends Component> isFlag;
     private Class<? extends Component> isLava;
     private Class<? extends Component> isBaba;
-
 
     private Class<? extends Component> isPush;
     private Class<? extends Component> isWin;
@@ -58,29 +57,35 @@ public class RuleManager extends System {
     private Class<? extends Component> isKill;
     private Class<? extends Component> isSink;
 
-    private Texture wallTexture = new Texture("resources/images/wall.png");
-    private Texture rockTexture = new Texture("resources/images/rock.png");
-    private Texture flagTexture = new Texture("resources/images/flag.png");
-    private Texture babaTexture = new Texture("resources/images/big-blue.png");
-    private Texture waterTexture = new Texture("resources/images/water.png");
-    private Texture lavaTexture = new Texture("resources/images/lava.png");
-
     // textures
-    Texture blankTexture = new Texture("resources/images/blank.png");
+    private final Texture wallTexture = new Texture("resources/images/wall.png");
+    private final Texture rockTexture = new Texture("resources/images/rock.png");
+    private final Texture flagTexture = new Texture("resources/images/flag.png");
+    private final Texture babaTexture = new Texture("resources/images/big-blue.png");
+    private final Texture waterTexture = new Texture("resources/images/water.png");
+    private final Texture lavaTexture = new Texture("resources/images/lava.png");
+    private final Texture blankTexture = new Texture("resources/images/blank.png");
+
     int width;
     int height;
 
     private final HashMap<String, Class<? extends Component>> componentHashMap = new HashMap<>();
 
     private SoundManager audio;
-    private Sound popSound;
+    private final Sound popSound;
     private Sound cheerSound;
-    private Sound xylophoneSound;
+    private final Sound xylophoneSound;
 
 
-    public RuleManager(int width, int height, int gridSize, long window, KeyBoardConfig keyBoardConfig, SoundManager audio){
+    public RuleManager(int width, int height,
+                       int gridSize, long window,
+                       KeyBoardConfig keyBoardConfig, SoundManager audio,
+                       Graphics2D graphics){
+
         // rule manager cares about every component type
         super(ecs.Components.Appearance.class);
+
+        this.graphics = graphics;
 
         this.audio = audio;
         popSound = audio.load("pop", "resources/audio/Pop.ogg", false);
@@ -97,9 +102,10 @@ public class RuleManager extends System {
         this.componentHashMap.put("F", ecs.Components.IsFlag.class);
         this.componentHashMap.put("W", ecs.Components.IsWall.class);
 
-        OFFSET_X = 0.1f;
-        OFFSET_Y = 0.1f;
-        CELL_SIZE = (1.0f - OFFSET_X * 2) / gridSize;
+        float OFFSET_X = 0.1f;
+        float OFFSET_Y = 0.1f;
+        // logs for particle system renderer updates
+        float CELL_SIZE = (1.0f - OFFSET_X * 2) / gridSize;
 
         board = new String[width][height];
         previousBoard = board;
@@ -107,6 +113,13 @@ public class RuleManager extends System {
         this.window = window;
 
         this.keyBoardConfig = keyBoardConfig;
+
+        this.particleSystem = new ParticleSystem(0.005f, 0.002f,
+                0.05f, 0.05f,
+                0.4f, 0.2f, gridSize);
+
+        this.particleSystemRenderer = new ParticleSystemRenderer();
+        this.particleSystemRenderer.initialize("resources/images/sparkle.png");
     }
 
     @Override
@@ -122,6 +135,10 @@ public class RuleManager extends System {
             checkKill();
             checkSink();
             updateUndoStack();
+
+            particleSystem.update(elapsedTime);
+
+            particleSystemRenderer.render(graphics, particleSystem);
 
             if (isYouChange) {
                 xylophoneSound.play();
@@ -361,6 +378,10 @@ public class RuleManager extends System {
                 if (entity.contains(isYou)) {
                     if (!entity.contains(ecs.Components.Movable.class)) {
                         entity.add(new ecs.Components.Movable(Movable.Direction.Stopped, MOVE_INTERVAL));
+
+                        Position position = entity.get(ecs.Components.Position.class);
+                        particleSystem.isYouChange(position.getX(),position.getY());
+
                     }
 
                     if (!entity.contains(ecs.Components.KeyboardControlled.class)) {
@@ -678,31 +699,6 @@ public class RuleManager extends System {
         }
     }
 
-    private void addParticles(Entity entity){
-        Position position = entity.get(ecs.Components.Position.class);
-        Particles particles = entity.get(ecs.Components.Particles.class);
-
-        int x_pos = position.getX();
-        int y_pos = position.getY();
-
-        int x = 2 + 2;
-
-        for (int i = 0; i < 20; i++) {
-            float size = (float) random.nextGaussian(0.015f, 0.004f);
-            var p = new Particle(
-                    new Vector2f(-0.5f + OFFSET_X + position.getX() * CELL_SIZE,-0.5f + OFFSET_Y + position.getY() * CELL_SIZE),
-                    this.random.nextCircleVector(),
-                    (float) this.random.nextGaussian(0.07f, 0.05f),
-                    new Vector2f(size, size),
-                    this.random.nextGaussian(3, 1) / 10);
-
-            p.area.left = -0.5f + OFFSET_X + position.getX() * CELL_SIZE;
-            p.area.top =  -0.5f + OFFSET_Y + position.getY() * CELL_SIZE;
-
-            particles.particles.put(p.name, p);
-        }
-    }
-
     private void updateUndoStack() {
 
         if (!boardsMatch()) {
@@ -711,7 +707,7 @@ public class RuleManager extends System {
             java.lang.System.out.println("NEW BOARD CONFIG");
             HashMap<Long, ArrayList<Component>> storingHashMap = new HashMap<>();
             for (var entity : entities.values()) {
-                storingHashMap = storeCopy(entity, storingHashMap);
+                storeCopy(entity, storingHashMap);
             }
             undoStack.push(storingHashMap);
         }
@@ -765,7 +761,7 @@ public class RuleManager extends System {
     private boolean boardsMatch(){
         for (int row = 0; row <width; row ++){
             for (int col = 0; col < height; col ++){
-                if (board[row][col] != previousBoard[row][col]){
+                if (!Objects.equals(board[row][col], previousBoard[row][col])){
                     return false;
                 }
             }
@@ -773,8 +769,8 @@ public class RuleManager extends System {
         return true;
     }
 
-    private HashMap<Long, ArrayList<ecs.Components.Component>> storeCopy
-            (Entity entity, HashMap<Long, ArrayList<ecs.Components.Component>> hashMap){
+    private void storeCopy
+            (Entity entity, HashMap<Long, ArrayList<Component>> hashMap){
 
         ArrayList<ecs.Components.Component> componentsList = new ArrayList<>();
 
@@ -833,10 +829,6 @@ public class RuleManager extends System {
             componentsList.add(movableCopy);
         }
 
-        if (entity.contains(ecs.Components.Particles.class)){
-            componentsList.add(new Particles());
-        }
-
         if (entity.contains(ecs.Components.Position.class)){
             Position entityPosition = entity.get(ecs.Components.Position.class);
             Position positionCopy = new Position(entityPosition.getX(), entityPosition.getY());
@@ -845,7 +837,6 @@ public class RuleManager extends System {
 
         hashMap.put(entity.getId(), componentsList);
 
-        return hashMap;
     }
 
     private void checkUndo(){

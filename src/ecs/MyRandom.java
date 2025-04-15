@@ -1,4 +1,4 @@
-package ecs.Systems;
+package ecs;
 
 import org.joml.Vector2f;
 

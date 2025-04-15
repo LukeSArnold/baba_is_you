@@ -12,7 +12,6 @@ public class MainMenuView extends GameStateView {
         NewGame,
         Settings,
         About,
-        Credits,
         Quit;
 
         public MenuState next() {
@@ -56,7 +55,6 @@ public class MainMenuView extends GameStateView {
                 case MenuState.NewGame -> GameStateEnum.LevelSelect;
                 case MenuState.Settings -> GameStateEnum.Settings;
                 case MenuState.About -> GameStateEnum.About;
-                case MenuState.Credits -> GameStateEnum.Credits;
                 case MenuState.Quit -> GameStateEnum.Quit;
             };
         });
@@ -93,9 +91,8 @@ public class MainMenuView extends GameStateView {
         final float HEIGHT_MENU_ITEM = 0.075f;
         float top = -0.25f;
         top = renderMenuItem(currentSelection == MenuState.NewGame ? fontSelected : fontMenu, "New Game", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.NewGame ? Color.YELLOW : Color.BLUE);
-        top = renderMenuItem(currentSelection == MenuState.Settings ? fontSelected : fontMenu, "Settings", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.Settings ? Color.YELLOW : Color.BLUE);
-        top = renderMenuItem(currentSelection == MenuState.About ? fontSelected : fontMenu, "About", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.About ? Color.YELLOW : Color.BLUE);
-        top = renderMenuItem(currentSelection == MenuState.Credits ? fontSelected : fontMenu, "Credits", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.Credits ? Color.YELLOW : Color.BLUE);
+        top = renderMenuItem(currentSelection == MenuState.Settings ? fontSelected : fontMenu, "Controls", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.Settings ? Color.YELLOW : Color.BLUE);
+        top = renderMenuItem(currentSelection == MenuState.About ? fontSelected : fontMenu, "Credits", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.About ? Color.YELLOW : Color.BLUE);
         renderMenuItem(currentSelection == MenuState.Quit ? fontSelected : fontMenu, "Quit", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.Quit ? Color.YELLOW : Color.BLUE);
     }
 

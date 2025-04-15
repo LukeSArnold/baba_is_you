@@ -23,7 +23,6 @@ public class GameModel {
     private ecs.Systems.KeyboardInput sysKeyboardInput;
     private ecs.Systems.RuleManager sysRuleManager;
     private ecs.Systems.AnimatedSprite sysAnimatedSprites;
-    private ecs.Systems.ParticleSystem sysParticles;
 
     private LevelMapper levelMapper = new LevelMapper("levels-all.bbiy");
     private Level level;
@@ -38,18 +37,14 @@ public class GameModel {
 
     public void initialize(Graphics2D graphics, int levelId, SoundManager audio) {
         level = levelMapper.levels.get(levelId);
-
         this.config = new KeyBoardConfig();
-
         serializer.loadKeyboardConfig(this.config);
-
         sysRenderer = new Renderer(graphics, level.width);
-        sysRuleManager = new RuleManager(level.width, level.height, GRID_SIZE, graphics.getWindow(), config, audio);
+        sysRuleManager = new RuleManager(level.width,
+                level.height, GRID_SIZE, graphics.getWindow(), config, audio, graphics);
         sysMovement = new Movement();
         sysKeyboardInput = new KeyboardInput(graphics.getWindow());
         sysAnimatedSprites = new AnimatedSprite();
-        sysParticles = new ParticleSystem(new Vector2f(0, 0), graphics);
-
 
         // initialize all entities with textures
         initializeLevelEntities(level);
@@ -61,7 +56,6 @@ public class GameModel {
             sysMovement.update(elapsedTime);
             sysRuleManager.update(elapsedTime);
             sysAnimatedSprites.update(elapsedTime);
-            sysParticles.update(elapsedTime);
 
             for (var entity : removeThese) {
                 removeEntity(entity);
@@ -191,7 +185,6 @@ public class GameModel {
         sysRenderer.add(entity);
         sysRuleManager.add(entity);
         sysAnimatedSprites.add(entity);
-        sysParticles.add(entity);
     }
 
     private void removeEntity(Entity entity) {
@@ -200,6 +193,5 @@ public class GameModel {
         sysRenderer.remove(entity.getId());
         sysRuleManager.remove(entity.getId());
         sysAnimatedSprites.remove(entity.getId());
-        sysParticles.remove(entity.getId());
     }
 }

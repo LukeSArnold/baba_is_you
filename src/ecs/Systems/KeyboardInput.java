@@ -28,6 +28,7 @@ public class KeyboardInput extends System {
         for (var entity : entities.values()) {
             if (entity.contains(ecs.Components.KeyboardControlled.class)) {
                 movable = entity.get(ecs.Components.Movable.class);
+                movable.input = Movable.Direction.Stopped;
                 var input = entity.get(ecs.Components.KeyboardControlled.class);
 
                 if (glfwGetKey(window, input.lookup.get(Movable.Direction.Up)) == GLFW_PRESS) {

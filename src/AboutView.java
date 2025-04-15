@@ -52,10 +52,13 @@ public class AboutView extends GameStateView {
 
     @Override
     public void render(double elapsedTime) {
-        final String message = "*I* wrote this amazing game!";
+        final String message = "This game was ported to Java by Luke Arnold";
+        final String message2 = "(+ a little bit of chatGPT and starter code)";
         final float height = 0.075f;
         final float width = font.measureTextWidth(message, height);
 
         graphics.drawTextByHeight(font, message, 0.0f - width / 2, 0 - height / 2, height, Color.YELLOW);
+        graphics.drawTextByHeight(font, message2, 0.0f - width / 2, height - height / 2, height, Color.YELLOW);
+
     }
 }

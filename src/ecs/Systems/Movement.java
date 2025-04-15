@@ -45,6 +45,7 @@ public class Movement extends System {
                     move(entity, 1, 0);
                     break;
             }
+            movable.input = Movable.Direction.Stopped;
         }
     }
 
@@ -111,6 +112,5 @@ public class Movement extends System {
         }
 
         movable.input = Movable.Direction.Stopped;
-
     }
 }
