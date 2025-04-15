@@ -11,25 +11,12 @@ public class ParticleSystem {
     private final HashMap<Long, Particle> particles = new HashMap<>();
     private final MyRandom random = new MyRandom();
 
-    private final float sizeMean;
-    private final float sizeStdDev;
-    private final float speedMean;
-    private final float speedStdDev;
-    private final float lifetimeMean;
-    private final float lifetimeStdDev;
-
     private float OFFSET_X;
     private float OFFSET_Y;
     private int GRID_SIZE;
     float CELL_SIZE;
 
-    public ParticleSystem(float sizeMean, float sizeStdDev, float speedMean, float speedStdDev, float lifetimeMean, float lifetimeStdDev, int gridSize) {
-        this.sizeMean = sizeMean;
-        this.sizeStdDev = sizeStdDev;
-        this.speedMean = speedMean;
-        this.speedStdDev = speedStdDev;
-        this.lifetimeMean = lifetimeMean;
-        this.lifetimeStdDev = lifetimeStdDev;
+    public ParticleSystem(int gridSize) {
 
         this.OFFSET_X = 0.1f;
         this.OFFSET_Y = 0.1f;
@@ -58,6 +45,16 @@ public class ParticleSystem {
 
         int particlesPerEdge = 20;
 
+        float sizeMean = 0.005f;
+        float sizeStd = 0.002f;
+
+        float speedMean = 0.005f;
+        float speedStd = 0.05f;
+
+        float lifetimeMean = 0.2f;
+        float lifetimeStd = 0.05f;
+
+
         Vector2f left_direction = new Vector2f(-1,0);
         Vector2f right_direction = new Vector2f(1,0);
         Vector2f up_direction = new Vector2f(0,-1);
@@ -65,31 +62,48 @@ public class ParticleSystem {
 
         //left edge particles
         for (int i = 0; i < particlesPerEdge; i++){
-            var particle = create(left_direction, new Vector2f(left_edge_x, top_edge_y  + (i * (CELL_SIZE / 20))));
+            var particle = create(left_direction,
+                    new Vector2f(left_edge_x, top_edge_y  + (i * (CELL_SIZE / 20))),
+                    sizeMean, sizeStd,
+                    speedMean, speedStd,
+                    lifetimeMean, lifetimeStd);
             particles.put(particle.name, particle);
         }
 
         //top edge particles
         for (int i = 0; i < particlesPerEdge; i++){
-            var particle = create(up_direction, new Vector2f(left_edge_x + (i * (CELL_SIZE / 20)), top_edge_y));
+            var particle = create(up_direction,
+                    new Vector2f(left_edge_x + (i * (CELL_SIZE / 20)), top_edge_y),
+                    sizeMean, sizeStd,
+                    speedMean, speedStd,
+                    lifetimeMean, lifetimeStd);
             particles.put(particle.name, particle);
         }
 
         //right edge particle
         for (int i = 0; i < particlesPerEdge; i++){
-            var particle = create(right_direction, new Vector2f(left_edge_x + CELL_SIZE, top_edge_y + (i * (CELL_SIZE / 20))));
+            var particle = create(right_direction,
+                    new Vector2f(left_edge_x + CELL_SIZE, top_edge_y + (i * (CELL_SIZE / 20))),
+                    sizeMean, sizeStd,
+                    speedMean, speedStd,
+                    lifetimeMean, lifetimeStd);
             particles.put(particle.name, particle);
         }
 
         //bottom particles
         for (int i = 0; i < particlesPerEdge; i++){
-            var particle = create(down_direction, new Vector2f(left_edge_x + (i * (CELL_SIZE / 20)), top_edge_y + CELL_SIZE));
+            var particle = create(down_direction,
+                    new Vector2f(left_edge_x + (i * (CELL_SIZE / 20)), top_edge_y + CELL_SIZE),
+                    sizeMean, sizeStd,
+                    speedMean, speedStd,
+                    lifetimeMean, lifetimeStd);
+
             particles.put(particle.name, particle);
         }
     }
 
     public void isWinChange(int x, int y){
-
+        isYouChange(x, y);
     }
 
     public void playerDeath(int x, int y){
@@ -102,22 +116,42 @@ public class ParticleSystem {
     }
 
     public void objectIsWin(int x, int y) {
+        float left_edge_x = -0.5f + OFFSET_X + x * CELL_SIZE;
+        float top_edge_y = -0.5f + OFFSET_Y + y * CELL_SIZE;
 
-    }
+        int particlesPerEdge = 20;
+
+        float sizeMean = 0.01f;
+        float sizeStd = 0.005f;
+
+        float speedMean = 0.05f;
+        float speedStd = 0.1f;
+
+        float lifetimeMean = 0.5f;
+        float lifetimeStd = 0.5f;
+
+        float radius = CELL_SIZE / 2;
+        for (int a = 0; a < 360; a++){
+            var particle = create(this.random.nextCircleVector(),
+                    new Vector2f(left_edge_x + (CELL_SIZE / 2), top_edge_y + (CELL_SIZE/2)),
+                    sizeMean, sizeStd, speedMean, speedStd, lifetimeMean, lifetimeStd);
+            particles.put(particle.name, particle);
+        }    }
 
 
     public Collection<Particle> getParticles() {
         return this.particles.values();
     }
 
-    private Particle create(Vector2f direction, Vector2f position) {
-        float size = (float) this.random.nextGaussian(this.sizeMean, this.sizeStdDev);
+    private Particle create(Vector2f direction, Vector2f position, float sizeMean, float sizeStdDev,
+                            float speedMean, float speedStdDev, float lifetimeMean, float lifetimeStdDev) {
+        float size = (float) this.random.nextGaussian(sizeMean, sizeStdDev);
         var p = new Particle(
                 position,
                 direction,
-                (float) this.random.nextGaussian(this.speedMean, this.speedStdDev),
+                (float) this.random.nextGaussian(speedMean, speedStdDev),
                 new Vector2f(size, size),
-                this.random.nextGaussian(this.lifetimeMean, this.lifetimeStdDev));
+                this.random.nextGaussian(lifetimeMean, lifetimeStdDev));
 
         return p;
     }

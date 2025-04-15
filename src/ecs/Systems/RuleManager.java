@@ -27,6 +27,7 @@ public class RuleManager extends System {
     private final long window;
 
     private boolean won = false;
+    private boolean fireworksPlayed = false;
     private boolean isYouChange = false;
 
     // particles systems declared here due to requirement to expose certain methods
@@ -114,9 +115,7 @@ public class RuleManager extends System {
 
         this.keyBoardConfig = keyBoardConfig;
 
-        this.particleSystem = new ParticleSystem(0.005f, 0.002f,
-                0.05f, 0.05f,
-                0.4f, 0.2f, gridSize);
+        this.particleSystem = new ParticleSystem(gridSize);
 
         this.particleSystemRenderer = new ParticleSystemRenderer();
         this.particleSystemRenderer.initialize("resources/images/sparkle.png");
@@ -380,7 +379,9 @@ public class RuleManager extends System {
                         entity.add(new ecs.Components.Movable(Movable.Direction.Stopped, MOVE_INTERVAL));
 
                         Position position = entity.get(ecs.Components.Position.class);
-                        particleSystem.isYouChange(position.getX(),position.getY());
+                        if (!won) {
+                            particleSystem.isYouChange(position.getX(), position.getY());
+                        }
 
                     }
 
@@ -452,6 +453,10 @@ public class RuleManager extends System {
             if (isWin != null) {
                 if (entity.contains(isWin)) {
                     if (!entity.contains(ecs.Components.Winnable.class)){
+                        if (!won) {
+                            Position position = entity.get(ecs.Components.Position.class);
+                            particleSystem.isWinChange(position.getX(), position.getY());
+                        }
                         entity.add(new ecs.Components.Winnable());
                     }
                 } else {
@@ -588,6 +593,12 @@ public class RuleManager extends System {
                         Sound cheer = audio.load("win", "resources/audio/Cheer.ogg", false);
                         cheer.play();
 
+                        for (Entity winningEntity: entities.values()){
+                            if (winningEntity.contains(isYou)){
+                                Position position = winningEntity.get(ecs.Components.Position.class);
+                                particleSystem.objectIsWin(position.getX(), position.getY());
+                            }
+                        }
                         this.won = true;
                     }
                     for (var allEntities: entities.values()){
