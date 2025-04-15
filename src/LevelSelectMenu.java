@@ -14,6 +14,9 @@ public class LevelSelectMenu extends GameStateView {
     private KeyboardInput inputKeyboard;
     private GameStateEnum nextGameState = GameStateEnum.MainMenu;
     private int nextLevel;
+
+    private boolean inputEligible = false;
+
     private Font fontMenu;
     private Font fontSelected;
 
@@ -55,27 +58,31 @@ public class LevelSelectMenu extends GameStateView {
 
     @Override
     public void initializeSession() {
+        inputEligible = false;
         nextGameState = GameStateEnum.LevelSelect;
     }
 
     @Override
     public void initializeSession(int level) {
-
+        inputEligible = false;
     }
 
     @Override
     public GameStateEnum processInput(double elapsedTime) {
         // Updating the keyboard can change the nextGameState
-        inputKeyboard.update(elapsedTime);
+        if (inputEligible) {
+            inputKeyboard.update(elapsedTime);
+        }
         return nextGameState;
     }
 
     @Override
     public int processInputLevel(double elapsedTime) {
         // Updating the keyboard can change the nextGameState
-        if (selectionEligible) {
+        if (inputEligible) {
             inputKeyboard.update(elapsedTime);
         }
+
         return currentSelection;
     }
 
@@ -83,8 +90,8 @@ public class LevelSelectMenu extends GameStateView {
 
     @Override
     public void update(double elapsedTime) {
-        if (glfwGetKey(graphics.getWindow(), GLFW_KEY_ENTER) == GLFW_RELEASE){
-            selectionEligible = true;
+        if (!inputEligible){
+            checkInput();
         }
     }
 
@@ -107,5 +114,13 @@ public class LevelSelectMenu extends GameStateView {
         graphics.drawTextByHeight(font, text, 0.0f - width / 2, top, height, color);
 
         return top + height;
+    }
+
+    private void checkInput() {
+        glfwSetKeyCallback(graphics.getWindow(), (win, key, scancode, action, mods) -> {
+            if (action == GLFW_PRESS) {
+                inputEligible = true;
+            }
+        });
     }
 }
