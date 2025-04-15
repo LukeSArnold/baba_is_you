@@ -31,7 +31,6 @@ public class GameModel {
     private KeyBoardConfig config;
     private Serializer serializer;
     private SoundManager audio;
-    Sound backgroundMusic;
 
     public GameModel(Serializer serializer){
         this.serializer = serializer;

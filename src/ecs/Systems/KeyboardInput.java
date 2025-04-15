@@ -24,11 +24,11 @@ public class KeyboardInput extends System {
 
     @Override
     public void update(double gameTime) {
+        Movable movable = null;
         for (var entity : entities.values()) {
             if (entity.contains(ecs.Components.KeyboardControlled.class)) {
-                var movable = entity.get(ecs.Components.Movable.class);
+                movable = entity.get(ecs.Components.Movable.class);
                 var input = entity.get(ecs.Components.KeyboardControlled.class);
-
 
                 if (glfwGetKey(window, input.lookup.get(Movable.Direction.Up)) == GLFW_PRESS) {
                     pressingUp = true;
@@ -77,9 +77,15 @@ public class KeyboardInput extends System {
                         pressingRight = false;
                     }
                 }
+            }
+        }
 
+        for (var entity : entities.values()) {
+            if (entity.contains(ecs.Components.KeyboardControlled.class)) {
+                var secondary_movable = entity.get(ecs.Components.Movable.class);
+                var input = entity.get(ecs.Components.KeyboardControlled.class);
 
-
+                secondary_movable.input = movable.input;
             }
         }
     }

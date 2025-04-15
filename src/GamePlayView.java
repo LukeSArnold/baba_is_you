@@ -32,8 +32,6 @@ public class GamePlayView extends GameStateView {
 
     @Override
     public void initializeSession() {
-
-        polkaMusic.play();
         gameModel = new GameModel(serializer);
         gameModel.initialize(graphics, 0, audio);
         nextGameState = GameStateEnum.GamePlay;
@@ -41,6 +39,10 @@ public class GamePlayView extends GameStateView {
 
     @Override
     public void initializeSession(int level) {
+        if (polkaMusic.isPlaying()){
+            polkaMusic.stop();
+        }
+        polkaMusic.play();
         gameModel = new GameModel(serializer);
         gameModel.initialize(graphics, level, audio);
         nextGameState = GameStateEnum.GamePlay;
