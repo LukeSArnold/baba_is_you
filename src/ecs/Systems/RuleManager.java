@@ -22,7 +22,7 @@ public class RuleManager extends System {
 
     private final KeyBoardConfig keyBoardConfig;
 
-    final double MOVE_INTERVAL = .2; // seconds
+    final double MOVE_INTERVAL = .1; // seconds
     private double intervalElapsed = 0;
 
     private final long window;
@@ -40,7 +40,8 @@ public class RuleManager extends System {
     private String[][] board;
     private String[][] previousBoard;
 
-    private final Stack<HashMap<Long, ArrayList<Component>>> undoStack = new Stack<>();
+    private Stack<HashMap<Long, ArrayList<Component>>> undoStack = new Stack<>();
+    private HashMap<Long, ArrayList<Component>> initialState = new HashMap<>();
 
     private Class<? extends Component> isPush;
     private Class<? extends Component> isWin;
@@ -53,9 +54,10 @@ public class RuleManager extends System {
     Texture blankTexture = new Texture("resources/images/blank.png");
 
     SoundManager audio = new SoundManager();
+    Sound backgroundMusic = audio.load("music", "resources/audio/Polka.ogg", true);
     Sound popSound = audio.load("pop", "resources/audio/Pop.ogg", false);
-    Sound cheerSound = audio.load("pop", "resources/audio/Cheer.ogg", false);
-    Sound xylophoneSound = audio.load("pop", "resources/audio/Xylophone.ogg", false);
+    Sound cheerSound = audio.load("cheer", "resources/audio/Cheer.ogg", false);
+    Sound xylophoneSound = audio.load("xylophone", "resources/audio/Xylophone.ogg", false);
 
     int width;
     int height;
@@ -87,6 +89,8 @@ public class RuleManager extends System {
         this.window = window;
 
         this.keyBoardConfig = keyBoardConfig;
+
+        backgroundMusic.play();
     }
 
     private void updateRules(){
@@ -584,9 +588,32 @@ public class RuleManager extends System {
                         entity.add(component);
                     }
                 }
-
             }
         }
+    }
+
+    private void restart(){
+        for (var entity: entities.values()){
+            // previous states for each entity stored in the hash map
+            var previousEntityStates = initialState.get(entity.getId());
+            for (Component component: previousEntityStates){
+                if (entity.contains(component.getClass())){
+                    entity.remove(component.getClass());
+                    entity.add(component);
+                }
+                else {
+                    entity.add(component);
+                }
+            }
+        }
+
+        for (var entity: entities.values()){
+            if (entity.contains(ecs.Components.Movable.class)){
+                Movable movable = entity.get(ecs.Components.Movable.class);
+                movable.input = Movable.Direction.Stopped;
+            }
+        }
+        undoStack = new Stack<>();
     }
 
     private boolean boardsMatch(){
@@ -677,8 +704,14 @@ public class RuleManager extends System {
 
     private void checkUndo(){
 
-        if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
-            undo();
+        if (!won) {
+            if (glfwGetKey(window, keyBoardConfig.undo) == GLFW_PRESS) {
+                undo();
+            }
+
+            if (glfwGetKey(window, keyBoardConfig.restart) == GLFW_PRESS) {
+                restart();
+            }
         }
     }
 
@@ -703,6 +736,12 @@ public class RuleManager extends System {
             if (intervalElapsed > MOVE_INTERVAL) {
                 checkUndo();
                 intervalElapsed -= MOVE_INTERVAL;
+            }
+        }
+
+        if (undoStack.size() < 2){
+            for (var entity : entities.values()) {
+                storeCopy(entity, initialState);
             }
         }
     }

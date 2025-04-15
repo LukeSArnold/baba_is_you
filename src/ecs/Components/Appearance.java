@@ -20,4 +20,11 @@ public class Appearance extends Component {
         this.spriteTime = spriteTime;
         this.subImageWidth = spriteSheet.getWidth() / spriteTime.length;
     }
+
+    public Appearance(Texture spriteSheet, float[] spriteTime, int subImageIndex) {
+        this.spriteSheet = spriteSheet;
+        this.spriteTime = spriteTime;
+        this.subImageWidth = spriteSheet.getWidth() / spriteTime.length;
+        this.subImageIndex = subImageIndex;
+    }
 }

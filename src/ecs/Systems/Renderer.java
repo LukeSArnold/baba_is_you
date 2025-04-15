@@ -48,11 +48,6 @@ public class Renderer extends System {
         area.width = CELL_SIZE;
         area.height = CELL_SIZE;
 
-        float fraction = Math.min(1 / 30.0f, 1.0f);
-//        var color = new Color(
-//                org.joml.Math.lerp(appearance.color.r, 0, fraction),
-//                org.joml.Math.lerp(appearance.color.g, 0, fraction),
-//                org.joml.Math.lerp(appearance.color.b, 1, fraction));
         var color = Color.WHITE;
 
         Rectangle subImage = new Rectangle(
