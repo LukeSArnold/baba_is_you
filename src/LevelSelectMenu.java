@@ -17,6 +17,9 @@ public class LevelSelectMenu extends GameStateView {
     private Font fontMenu;
     private Font fontSelected;
 
+    private boolean selectionEligible = false;
+
+
     @Override
     public void initialize(Graphics2D graphics, Serializer serializer) {
         super.initialize(graphics, serializer);
@@ -70,7 +73,9 @@ public class LevelSelectMenu extends GameStateView {
     @Override
     public int processInputLevel(double elapsedTime) {
         // Updating the keyboard can change the nextGameState
-        inputKeyboard.update(elapsedTime);
+        if (selectionEligible) {
+            inputKeyboard.update(elapsedTime);
+        }
         return currentSelection;
     }
 
@@ -78,6 +83,9 @@ public class LevelSelectMenu extends GameStateView {
 
     @Override
     public void update(double elapsedTime) {
+        if (glfwGetKey(graphics.getWindow(), GLFW_KEY_ENTER) == GLFW_RELEASE){
+            selectionEligible = true;
+        }
     }
 
     @Override

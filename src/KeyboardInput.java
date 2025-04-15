@@ -62,4 +62,5 @@ public class KeyboardInput {
      */
     private record CommandEntry(int key, boolean keyPressOnly, ICommand callback) {
     }
+
 }
