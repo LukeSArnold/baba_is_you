@@ -41,6 +41,7 @@ public class Game {
     }
 
     public void shutdown() {
+        serializer.shutdown();
     }
 
     public void run() {

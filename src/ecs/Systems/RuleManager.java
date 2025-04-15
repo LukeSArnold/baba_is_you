@@ -43,6 +43,14 @@ public class RuleManager extends System {
     private Stack<HashMap<Long, ArrayList<Component>>> undoStack = new Stack<>();
     private HashMap<Long, ArrayList<Component>> initialState = new HashMap<>();
 
+    private Class<? extends Component> isWall;
+    private Class<? extends Component> isRock;
+    private Class<? extends Component> isWater;
+    private Class<? extends Component> isFlag;
+    private Class<? extends Component> isLava;
+    private Class<? extends Component> isBaba;
+
+
     private Class<? extends Component> isPush;
     private Class<? extends Component> isWin;
     private Class<? extends Component> isYou;
@@ -50,24 +58,34 @@ public class RuleManager extends System {
     private Class<? extends Component> isKill;
     private Class<? extends Component> isSink;
 
+    private Texture wallTexture = new Texture("resources/images/wall.png");
+    private Texture rockTexture = new Texture("resources/images/rock.png");
+    private Texture flagTexture = new Texture("resources/images/flag.png");
+    private Texture babaTexture = new Texture("resources/images/big-blue.png");
+    private Texture waterTexture = new Texture("resources/images/water.png");
+    private Texture lavaTexture = new Texture("resources/images/lava.png");
+
     // textures
     Texture blankTexture = new Texture("resources/images/blank.png");
-
-    SoundManager audio = new SoundManager();
-    Sound backgroundMusic = audio.load("music", "resources/audio/Polka.ogg", true);
-    Sound popSound = audio.load("pop", "resources/audio/Pop.ogg", false);
-    Sound cheerSound = audio.load("cheer", "resources/audio/Cheer.ogg", false);
-    Sound xylophoneSound = audio.load("xylophone", "resources/audio/Xylophone.ogg", false);
-
     int width;
     int height;
 
     private final HashMap<String, Class<? extends Component>> componentHashMap = new HashMap<>();
 
+    private SoundManager audio;
+    private Sound popSound;
+    private Sound cheerSound;
+    private Sound xylophoneSound;
 
-    public RuleManager(int width, int height, int gridSize, long window, KeyBoardConfig keyBoardConfig){
+
+    public RuleManager(int width, int height, int gridSize, long window, KeyBoardConfig keyBoardConfig, SoundManager audio){
         // rule manager cares about every component type
         super(ecs.Components.Appearance.class);
+
+        this.audio = audio;
+        popSound = audio.load("pop", "resources/audio/Pop.ogg", false);
+        cheerSound = audio.load("cheer", "resources/audio/Cheer.ogg", false);
+        xylophoneSound = audio.load("xylophone", "resources/audio/Xylophone.ogg", false);
 
         this.width = width;
         this.height = height;
@@ -89,8 +107,121 @@ public class RuleManager extends System {
         this.window = window;
 
         this.keyBoardConfig = keyBoardConfig;
+    }
 
-        backgroundMusic.play();
+    @Override
+    public void update(double elapsedTime) {
+        if (this.keyBoardConfig != null && this.keyBoardConfig.initialized) {
+
+            intervalElapsed += elapsedTime;
+            updateBoardAll();
+            updateRules();
+            applyRules();
+            updateEntityTypes();
+            checkWin();
+            checkKill();
+            checkSink();
+            updateUndoStack();
+
+            if (isYouChange) {
+                xylophoneSound.play();
+                isYouChange = false;
+            }
+
+            if (intervalElapsed > MOVE_INTERVAL) {
+                checkUndo();
+                intervalElapsed -= MOVE_INTERVAL;
+            }
+        }
+
+        if (undoStack.size() < 2){
+            for (var entity : entities.values()) {
+                storeCopy(entity, initialState);
+            }
+        }
+    }
+
+    private void updateEntityTypes(){
+        for (var entity: entities.values()){
+            Appearance entityAppearance = entity.get(ecs.Components.Appearance.class);
+            if (isWall != null) {
+                if (entity.contains(isWall)){
+                    removeCurrentType(entity);
+                    entity.add(new ecs.Components.IsWall());
+                    entityAppearance.spriteSheet = wallTexture;
+                }
+            }
+
+            if (isRock != null) {
+                if (entity.contains(isRock)){
+                    removeCurrentType(entity);
+                    entity.add(new ecs.Components.IsRock());
+                    entityAppearance.spriteSheet = rockTexture;
+                }
+            }
+
+            if (isWater != null) {
+                if (entity.contains(isWater)){
+                    removeCurrentType(entity);
+                    entity.add(new ecs.Components.IsWater());
+                    entityAppearance.spriteSheet = waterTexture;
+                }
+            }
+
+            if (isLava != null) {
+                if (entity.contains(isLava)){
+                    removeCurrentType(entity);
+                    entity.add(new ecs.Components.IsLava());
+                    entityAppearance.spriteSheet = lavaTexture;
+                }
+            }
+
+            if (isFlag != null) {
+                if (entity.contains(isFlag)){
+                    removeCurrentType(entity);
+                    entity.add(new ecs.Components.IsFlag());
+                    entityAppearance.spriteSheet = flagTexture;
+                }
+            }
+
+            if (isBaba != null) {
+                if (entity.contains(isBaba)){
+                    removeCurrentType(entity);
+                    entity.add(new ecs.Components.IsBaba());
+                    entityAppearance.spriteSheet = babaTexture;
+                }
+            }
+        }
+
+        isLava = null;
+        isWall = null;
+        isRock = null;
+        isWater = null;
+        isBaba = null;
+    }
+
+    private void removeCurrentType(Entity entity){
+        if (entity.contains(ecs.Components.IsWall.class)){
+            entity.remove(ecs.Components.IsWall.class);
+        }
+        if (entity.contains(ecs.Components.IsFlag.class)){
+            entity.remove(ecs.Components.IsFlag.class);
+        }
+        if (entity.contains(ecs.Components.IsHedge.class)){
+            entity.remove(ecs.Components.IsHedge.class);
+        }
+        if (entity.contains(ecs.Components.IsLava.class)){
+            entity.remove(ecs.Components.IsLava.class);
+        }
+        if (entity.contains(ecs.Components.IsRock.class)){
+            entity.remove(ecs.Components.IsRock.class);
+        }
+        if (entity.contains(ecs.Components.IsWater.class)){
+            entity.remove(ecs.Components.IsWater.class);
+        }
+        if (entity.contains(ecs.Components.IsBaba.class)){
+            entity.remove(ecs.Components.IsBaba.class);
+        }
     }
 
     private void updateRules(){
@@ -111,6 +242,14 @@ public class RuleManager extends System {
                                 case "S" -> isStop = this.componentHashMap.get(left_element);
                                 case "K" -> isKill = this.componentHashMap.get(left_element);
                                 case "N" -> isSink = this.componentHashMap.get(left_element);
+
+                                case "W" -> isWall = this.componentHashMap.get(left_element);
+                                case "R" -> isRock = this.componentHashMap.get(left_element);
+                                case "F" -> isFlag = this.componentHashMap.get(left_element);
+                                case "A" -> isWater = this.componentHashMap.get(left_element);
+                                case "L" -> isLava = this.componentHashMap.get(left_element);
+                                case "B" -> isBaba = this.componentHashMap.get(left_element);
+
                             }
                         }
                     }
@@ -126,6 +265,13 @@ public class RuleManager extends System {
                                 case "S" -> isStop = this.componentHashMap.get(top_element);
                                 case "K" -> isKill = this.componentHashMap.get(top_element);
                                 case "N" -> isSink = this.componentHashMap.get(top_element);
+
+                                case "W" -> isWall = this.componentHashMap.get(top_element);
+                                case "R" -> isRock = this.componentHashMap.get(top_element);
+                                case "F" -> isFlag = this.componentHashMap.get(top_element);
+                                case "A" -> isWater = this.componentHashMap.get(top_element);
+                                case "L" -> isLava = this.componentHashMap.get(top_element);
+                                case "B" -> isBaba = this.componentHashMap.get(top_element);
                             }
                         }
                     }
@@ -711,37 +857,6 @@ public class RuleManager extends System {
 
             if (glfwGetKey(window, keyBoardConfig.restart) == GLFW_PRESS) {
                 restart();
-            }
-        }
-    }
-
-    @Override
-    public void update(double elapsedTime) {
-        if (this.keyBoardConfig != null && this.keyBoardConfig.initialized) {
-
-            intervalElapsed += elapsedTime;
-            updateBoardAll();
-            updateRules();
-            applyRules();
-            checkWin();
-            checkKill();
-            checkSink();
-            updateUndoStack();
-
-            if (isYouChange) {
-                xylophoneSound.play();
-                isYouChange = false;
-            }
-
-            if (intervalElapsed > MOVE_INTERVAL) {
-                checkUndo();
-                intervalElapsed -= MOVE_INTERVAL;
-            }
-        }
-
-        if (undoStack.size() < 2){
-            for (var entity : entities.values()) {
-                storeCopy(entity, initialState);
             }
         }
     }

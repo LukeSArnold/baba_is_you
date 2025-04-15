@@ -2,6 +2,8 @@ import ecs.Entities.*;
 import ecs.Systems.*;
 import ecs.Systems.AnimatedSprite;
 import ecs.Systems.KeyboardInput;
+import edu.usu.audio.Sound;
+import edu.usu.audio.SoundManager;
 import edu.usu.graphics.*;
 import org.joml.Vector2f;
 import utils.KeyBoardConfig;
@@ -17,7 +19,6 @@ public class GameModel {
     private final List<Entity> addThese = new ArrayList<>();
 
     private ecs.Systems.Renderer sysRenderer;
-    private ecs.Systems.Collision sysCollision;
     private ecs.Systems.Movement sysMovement;
     private ecs.Systems.KeyboardInput sysKeyboardInput;
     private ecs.Systems.RuleManager sysRuleManager;
@@ -29,13 +30,14 @@ public class GameModel {
 
     private KeyBoardConfig config;
     private Serializer serializer;
+    private SoundManager audio;
+    Sound backgroundMusic;
 
     public GameModel(Serializer serializer){
         this.serializer = serializer;
-
     }
 
-    public void initialize(Graphics2D graphics, int levelId) {
+    public void initialize(Graphics2D graphics, int levelId, SoundManager audio) {
         level = levelMapper.levels.get(levelId);
 
         this.config = new KeyBoardConfig();
@@ -43,7 +45,7 @@ public class GameModel {
         serializer.loadKeyboardConfig(this.config);
 
         sysRenderer = new Renderer(graphics, level.width);
-        sysRuleManager = new RuleManager(level.width, level.height, GRID_SIZE, graphics.getWindow(), config);
+        sysRuleManager = new RuleManager(level.width, level.height, GRID_SIZE, graphics.getWindow(), config, audio);
         sysMovement = new Movement();
         sysKeyboardInput = new KeyboardInput(graphics.getWindow());
         sysAnimatedSprites = new AnimatedSprite();
@@ -77,11 +79,10 @@ public class GameModel {
     }
 
     private void initializeLevelEntities(Level level){
-        var texSquare = new Texture("resources/images/wall.png");
         var wallTexture = new Texture("resources/images/wall.png");
         var rockTexture = new Texture("resources/images/rock.png");
         var flagTexture = new Texture("resources/images/flag.png");
-        var babaTexture = new Texture("resources/images/word-baba.png");
+        var babaTexture = new Texture("resources/images/big-blue.png");
         var floorTexture = new Texture("resources/images/floor.png");
         var grassTexture = new Texture("resources/images/grass.png");
         var waterTexture = new Texture("resources/images/water.png");
