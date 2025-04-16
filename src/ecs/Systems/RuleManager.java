@@ -20,20 +20,21 @@ public class RuleManager extends System {
     private final KeyBoardConfig keyBoardConfig;
 
     // settings for updating new Keyboard controlled elements after rule changes
-    final double MOVE_INTERVAL = .1; // seconds
+    final double MOVE_INTERVAL = .15; // seconds
     private double intervalElapsed = 0;
 
     // window needed to detect keyboard inputs
     private final long window;
 
     private boolean won = false;
-    private boolean fireworksPlayed = false;
     private boolean isYouChange = false;
 
+    private ArrayList<Class<? extends Component>> isWinConfig = new ArrayList<>();
+
     // particles systems declared here due to requirement to expose certain methods
-    private ParticleSystemRenderer particleSystemRenderer;
-    private ParticleSystem particleSystem;
-    private Graphics2D graphics;
+    private final ParticleSystemRenderer particleSystemRenderer;
+    private final ParticleSystem particleSystem;
+    private final Graphics2D graphics;
 
     // configurations to keep track of board changes
     private String[][] board;
@@ -44,19 +45,19 @@ public class RuleManager extends System {
     private final HashMap<Long, ArrayList<Component>> initialState = new HashMap<>();
 
     // component logs for rule changes
-    private Class<? extends Component> isWall;
-    private Class<? extends Component> isRock;
-    private Class<? extends Component> isWater;
-    private Class<? extends Component> isFlag;
-    private Class<? extends Component> isLava;
-    private Class<? extends Component> isBaba;
+    private final ArrayList<Class<? extends Component>> isWall = new ArrayList<>() ;
+    private final ArrayList<Class<? extends Component>> isRock = new ArrayList<>();
+    private final ArrayList<Class<? extends Component>> isWater = new ArrayList<>();
+    private final ArrayList<Class<? extends Component>> isFlag = new ArrayList<>();
+    private final ArrayList<Class<? extends Component>> isLava = new ArrayList<>();
+    private final ArrayList<Class<? extends Component>> isBaba = new ArrayList<>();
 
-    private Class<? extends Component> isPush;
-    private Class<? extends Component> isWin;
-    private Class<? extends Component> isYou;
-    private Class<? extends Component> isStop;
-    private Class<? extends Component> isKill;
-    private Class<? extends Component> isSink;
+    private final ArrayList<Class<? extends Component>> isPush = new ArrayList<>();
+    private final ArrayList<Class<? extends Component>> isWin = new ArrayList<>();
+    private final ArrayList<Class<? extends Component>> isYou = new ArrayList<>();
+    private final ArrayList<Class<? extends Component>> isStop = new ArrayList<>();
+    private final ArrayList<Class<? extends Component>> isKill = new ArrayList<>();
+    private final ArrayList<Class<? extends Component>> isSink = new ArrayList<>();
 
     // textures
     private final Texture wallTexture = new Texture("resources/images/wall.png");
@@ -72,9 +73,7 @@ public class RuleManager extends System {
 
     private final HashMap<String, Class<? extends Component>> componentHashMap = new HashMap<>();
 
-    private SoundManager audio;
     private final Sound popSound;
-    private Sound cheerSound;
     private final Sound xylophoneSound;
 
 
@@ -88,9 +87,8 @@ public class RuleManager extends System {
 
         this.graphics = graphics;
 
-        this.audio = audio;
         popSound = audio.load("pop", "resources/audio/Pop.ogg", false);
-        cheerSound = audio.load("cheer", "resources/audio/Cheer.ogg", false);
+        Sound cheerSound = audio.load("cheer", "resources/audio/Cheer.ogg", false);
         xylophoneSound = audio.load("xylophone", "resources/audio/Xylophone.ogg", false);
 
         this.width = width;
@@ -126,6 +124,21 @@ public class RuleManager extends System {
         if (this.keyBoardConfig != null && this.keyBoardConfig.initialized) {
 
             intervalElapsed += elapsedTime;
+
+            isYou.clear();
+            isSink.clear();
+            isPush.clear();
+            isKill.clear();
+            isStop.clear();
+            isWin.clear();
+
+            isFlag.clear();
+            isRock.clear();
+            isBaba.clear();
+            isWall.clear();
+            isWater.clear();
+            isLava.clear();
+
             updateBoardAll();
             updateRules();
             applyRules();
@@ -134,6 +147,18 @@ public class RuleManager extends System {
             checkKill();
             checkSink();
             updateUndoStack();
+
+            for (var component: isWin){
+                if (!isWinConfig.contains(component)){
+                    for (var entity: entities.values()){
+                        if (entity.contains(component)){
+                            Position position = entity.get(ecs.Components.Position.class);
+                            particleSystem.isWinChange(position.getX(), position.getY());
+                        }
+                    }
+                }
+            }
+            isWinConfig = (ArrayList<Class<? extends Component>>) isWin.clone();
 
             particleSystem.update(elapsedTime);
 
@@ -160,60 +185,72 @@ public class RuleManager extends System {
     private void updateEntityTypes(){
         for (var entity: entities.values()){
             Appearance entityAppearance = entity.get(ecs.Components.Appearance.class);
-            if (isWall != null) {
-                if (entity.contains(isWall)){
-                    removeCurrentType(entity);
-                    entity.add(new ecs.Components.IsWall());
-                    entityAppearance.spriteSheet = wallTexture;
+            if (!isWall.isEmpty()) {
+                for (var isWallComponent: isWall) {
+                    if (entity.contains(isWallComponent)) {
+                        removeCurrentType(entity);
+                        entity.add(new ecs.Components.IsWall());
+                        entityAppearance.spriteSheet = wallTexture;
+                    }
                 }
             }
 
-            if (isRock != null) {
-                if (entity.contains(isRock)){
-                    removeCurrentType(entity);
-                    entity.add(new ecs.Components.IsRock());
-                    entityAppearance.spriteSheet = rockTexture;
+            if (!isRock.isEmpty()) {
+                for (var isRockComponent: isRock) {
+                    if (entity.contains(isRockComponent)) {
+                        removeCurrentType(entity);
+                        entity.add(new ecs.Components.IsRock());
+                        entityAppearance.spriteSheet = rockTexture;
+                    }
                 }
             }
 
-            if (isWater != null) {
-                if (entity.contains(isWater)){
-                    removeCurrentType(entity);
-                    entity.add(new ecs.Components.IsWater());
-                    entityAppearance.spriteSheet = waterTexture;
+            if (!isWater.isEmpty()) {
+                for (var isWaterComponent: isWater) {
+                    if (entity.contains(isWaterComponent)) {
+                        removeCurrentType(entity);
+                        entity.add(new ecs.Components.IsWater());
+                        entityAppearance.spriteSheet = waterTexture;
+                    }
                 }
             }
 
-            if (isLava != null) {
-                if (entity.contains(isLava)){
-                    removeCurrentType(entity);
-                    entity.add(new ecs.Components.IsLava());
-                    entityAppearance.spriteSheet = lavaTexture;
+            if (!isLava.isEmpty()) {
+                for (var isLavaComponent: isLava) {
+                    if (entity.contains(isLavaComponent)) {
+                        removeCurrentType(entity);
+                        entity.add(new ecs.Components.IsLava());
+                        entityAppearance.spriteSheet = lavaTexture;
+                    }
                 }
             }
 
-            if (isFlag != null) {
-                if (entity.contains(isFlag)){
-                    removeCurrentType(entity);
-                    entity.add(new ecs.Components.IsFlag());
-                    entityAppearance.spriteSheet = flagTexture;
+            if (!isFlag.isEmpty()) {
+                for (var isFlagComponent: isFlag) {
+                    if (entity.contains(isFlagComponent)) {
+                        removeCurrentType(entity);
+                        entity.add(new ecs.Components.IsFlag());
+                        entityAppearance.spriteSheet = flagTexture;
+                    }
                 }
             }
 
-            if (isBaba != null) {
-                if (entity.contains(isBaba)){
-                    removeCurrentType(entity);
-                    entity.add(new ecs.Components.IsBaba());
-                    entityAppearance.spriteSheet = babaTexture;
+            if (!isBaba.isEmpty()) {
+                for (var isBabaComponent: isBaba) {
+                    if (entity.contains(isBabaComponent)) {
+                        removeCurrentType(entity);
+                        entity.add(new ecs.Components.IsBaba());
+                        entityAppearance.spriteSheet = babaTexture;
+                    }
                 }
             }
         }
 
-        isLava = null;
-        isWall = null;
-        isRock = null;
-        isWater = null;
-        isBaba = null;
+        isLava.clear();
+        isWall.clear();
+        isRock.clear();
+        isWater.clear();
+        isBaba.clear();
     }
 
     private void removeCurrentType(Entity entity){
@@ -241,7 +278,6 @@ public class RuleManager extends System {
     }
 
     private void updateRules(){
-        Class<? extends Component> previousIsYou = isYou;
 
         for (int col = 0; col < board.length; col++){
             for (int row =0 ; row < board[0].length; row++){
@@ -250,21 +286,45 @@ public class RuleManager extends System {
                     if ((col - 1 >= 0) && (col+1 < board.length)){
                         String right_element = board[row][col+1];
                         String left_element = board[row][col-1];
-                        if ((right_element != null)){
+                        if ((right_element != null) && (left_element != null)){
                             switch (right_element) {
-                                case "Y" -> isYou = this.componentHashMap.get(left_element);
-                                case "P" -> isPush = this.componentHashMap.get(left_element);
-                                case "X" -> isWin = this.componentHashMap.get(left_element);
-                                case "S" -> isStop = this.componentHashMap.get(left_element);
-                                case "K" -> isKill = this.componentHashMap.get(left_element);
-                                case "N" -> isSink = this.componentHashMap.get(left_element);
+                                case "Y" -> {
+                                    if (!isYou.contains(this.componentHashMap.get(left_element))) {
+                                        isYou.add(this.componentHashMap.get(left_element));
+                                    }
+                                }
+                                case "P" -> {
+                                    if (!isPush.contains(this.componentHashMap.get(left_element))) {
+                                        isPush.add(this.componentHashMap.get(left_element));
+                                    }
+                                }
+                                case "X" -> {
+                                    if (!isWin.contains(this.componentHashMap.get(left_element))) {
+                                        isWin.add(this.componentHashMap.get(left_element));
+                                    }
+                                }
+                                case "S" -> {
+                                    if (!isStop.contains(this.componentHashMap.get(left_element))) {
+                                        isStop.add(this.componentHashMap.get(left_element));
+                                    }
+                                }
+                                case "K" -> {
+                                    if (!isKill.contains(this.componentHashMap.get(left_element))) {
+                                        isKill.add(this.componentHashMap.get(left_element));
+                                    }
+                                }
+                                case "N" -> {
+                                    if (!isSink.contains(this.componentHashMap.get(left_element))) {
+                                        isSink.add(this.componentHashMap.get(left_element));
+                                    }
+                                }
 
-                                case "W" -> isWall = this.componentHashMap.get(left_element);
-                                case "R" -> isRock = this.componentHashMap.get(left_element);
-                                case "F" -> isFlag = this.componentHashMap.get(left_element);
-                                case "A" -> isWater = this.componentHashMap.get(left_element);
-                                case "V" -> isLava = this.componentHashMap.get(left_element);
-                                case "B" -> isBaba = this.componentHashMap.get(left_element);
+                                case "W" -> isWall.add(this.componentHashMap.get(left_element));
+                                case "R" -> isRock.add(this.componentHashMap.get(left_element));
+                                case "F" -> isFlag.add(this.componentHashMap.get(left_element));
+                                case "A" -> isWater.add(this.componentHashMap.get(left_element));
+                                case "V" -> isLava.add(this.componentHashMap.get(left_element));
+                                case "B" -> isBaba.add(this.componentHashMap.get(left_element));
 
                             }
                         }
@@ -273,21 +333,45 @@ public class RuleManager extends System {
                     if ((row - 1 >= 0) && (row+1 < board[0].length)){
                         String top_element = board[row-1][col];
                         String bottom_element = board[row+1][col];
-                        if (bottom_element != null){
+                        if ((bottom_element != null) && (top_element != null)){
                             switch (bottom_element) {
-                                case "Y" -> isYou = this.componentHashMap.get(top_element);
-                                case "P" -> isPush = this.componentHashMap.get(top_element);
-                                case "X" -> isWin = this.componentHashMap.get(top_element);
-                                case "S" -> isStop = this.componentHashMap.get(top_element);
-                                case "K" -> isKill = this.componentHashMap.get(top_element);
-                                case "N" -> isSink = this.componentHashMap.get(top_element);
+                                case "Y" -> {
+                                    if (!isYou.contains(this.componentHashMap.get(top_element))) {
+                                        isYou.add(this.componentHashMap.get(top_element));
+                                    }
+                                }
+                                case "P" -> {
+                                    if (!isPush.contains(this.componentHashMap.get(top_element))) {
+                                        isPush.add(this.componentHashMap.get(top_element));
+                                    }
+                                }
+                                case "X" -> {
+                                    if (!isWin.contains(this.componentHashMap.get(top_element))) {
+                                        isWin.add(this.componentHashMap.get(top_element));
+                                    }
+                                }
+                                case "S" -> {
+                                    if (!isStop.contains(this.componentHashMap.get(top_element))) {
+                                        isStop.add(this.componentHashMap.get(top_element));
+                                    }
+                                }
+                                case "K" -> {
+                                    if (!isKill.contains(this.componentHashMap.get(top_element))) {
+                                        isKill.add(this.componentHashMap.get(top_element));
+                                    }
+                                }
+                                case "N" -> {
+                                    if (!isSink.contains(this.componentHashMap.get(top_element))) {
+                                        isSink.add(this.componentHashMap.get(top_element));
+                                    }
+                                }
 
-                                case "W" -> isWall = this.componentHashMap.get(top_element);
-                                case "R" -> isRock = this.componentHashMap.get(top_element);
-                                case "F" -> isFlag = this.componentHashMap.get(top_element);
-                                case "A" -> isWater = this.componentHashMap.get(top_element);
-                                case "L" -> isLava = this.componentHashMap.get(top_element);
-                                case "B" -> isBaba = this.componentHashMap.get(top_element);
+                                case "W" -> isWall.add(this.componentHashMap.get(top_element));
+                                case "R" -> isRock.add(this.componentHashMap.get(top_element));
+                                case "F" -> isFlag.add(this.componentHashMap.get(top_element));
+                                case "A" -> isWater.add(this.componentHashMap.get(top_element));
+                                case "L" -> isLava.add(this.componentHashMap.get(top_element));
+                                case "B" -> isBaba.add(this.componentHashMap.get(top_element));
                             }
                         }
                     }
@@ -296,18 +380,26 @@ public class RuleManager extends System {
                 // update is stop is moved
                 if ((board[row][col] != null) && (board[row][col].equals("S"))) {
                     if ((board[row][col - 1] == null) && (board[row - 1][col] == null)) {
-                        isStop = null;
+                        isStop.clear();
                     } else if ((board[row][col - 1] != null) && (board[row-1][col] != null)) {
                         if ((!board[row][col - 1].equals("I")) && (!board[row - 1][col].equals("I"))) {
-                            isStop = null;
+                            isStop.clear();
                         }
                     } else if ((board[row][col - 1] != null)) {
                         if ((!board[row][col - 1].equals("I"))) {
-                            isStop = null;
+                            isStop.clear();
+                        } else {
+                            if (board[row][col - 2] == null){
+                                isStop.clear();
+                            }
                         }
                     } else if ((board[row - 1][col] != null)) {
                         if ((!board[row-1][col].equals("I"))) {
-                            isStop = null;
+                            isStop.clear();
+                        } else {
+                            if (board[row-2][col] == null){
+                                isStop.clear();
+                            }
                         }
                     }
                 }
@@ -315,18 +407,18 @@ public class RuleManager extends System {
                 // update is you
                 if ((board[row][col] != null) && (board[row][col].equals("Y"))) {
                     if ((board[row][col - 1] == null) && (board[row - 1][col] == null)) {
-                        isYou = null;
+                        isYou.clear();
                     } else if ((board[row][col - 1] != null) && (board[row-1][col] != null)) {
                         if ((!board[row][col - 1].equals("I")) && (!board[row - 1][col].equals("I"))) {
-                            isYou = null;
+                            isYou.clear();
                         }
                     } else if ((board[row][col - 1] != null)) {
                         if ((!board[row][col - 1].equals("I"))) {
-                            isYou = null;
+                            isYou.clear();
                         }
                     } else if ((board[row - 1][col] != null)) {
                         if ((!board[row-1][col].equals("I"))) {
-                            isYou = null;
+                            isYou.clear();
                         }
                     }
                 }
@@ -335,18 +427,18 @@ public class RuleManager extends System {
 
                 if ((board[row][col] != null) && (board[row][col].equals("P"))) {
                     if ((board[row][col - 1] == null) && (board[row - 1][col] == null)) {
-                        isPush = null;
+                        isPush.clear();
                     } else if ((board[row][col - 1] != null) && (board[row-1][col] != null)) {
                         if ((!board[row][col - 1].equals("I")) && (!board[row - 1][col].equals("I"))) {
-                            isPush = null;
+                            isPush.clear();
                         }
                     } else if ((board[row][col - 1] != null)) {
                         if ((!board[row][col - 1].equals("I"))) {
-                            isPush = null;
+                            isPush.clear();
                         }
                     } else if ((board[row - 1][col] != null)) {
                         if ((!board[row-1][col].equals("I"))) {
-                            isPush = null;
+                            isPush.clear();
                         }
                     }
                 }
@@ -354,18 +446,18 @@ public class RuleManager extends System {
                 // update is win
                 if ((board[row][col] != null) && (board[row][col].equals("X"))) {
                     if ((board[row][col - 1] == null) && (board[row - 1][col] == null)) {
-                        isWin = null;
+                        isWin.clear();
                     } else if ((board[row][col - 1] != null) && (board[row-1][col] != null)) {
                         if ((!board[row][col - 1].equals("I")) && (!board[row - 1][col].equals("I"))) {
-                            isWin = null;
+                            isWin.clear();
                         }
                     } else if ((board[row][col - 1] != null)) {
                         if ((!board[row][col - 1].equals("I"))) {
-                            isWin = null;
+                            isWin.clear();
                         }
                     } else if ((board[row - 1][col] != null)) {
                         if ((!board[row-1][col].equals("I"))) {
-                            isWin = null;
+                            isWin.clear();
                         }
                     }
                 }
@@ -373,18 +465,18 @@ public class RuleManager extends System {
                 // update is defeat
                 if ((board[row][col] != null) && (board[row][col].equals("K"))){
                     if ((board[row][col-1] == null) && (board[row-1][col] == null)){
-                        isKill = null;
+                        isKill.clear();
                     } else if ((board[row][col - 1] != null) && (board[row-1][col] != null)) {
                         if ((!board[row][col-1].equals("I")) && (!board[row-1][col].equals("I"))){
-                            isKill = null;
+                            isKill.clear();
                         }
                     } else if ((board[row][col - 1] != null)) {
                         if ((!board[row][col - 1].equals("I"))) {
-                            isKill = null;
+                            isKill.clear();
                         }
                     } else if ((board[row - 1][col] != null)) {
                         if ((!board[row-1][col].equals("I"))) {
-                            isKill = null;
+                            isKill.clear();
                         }
                     }
                 }
@@ -392,35 +484,41 @@ public class RuleManager extends System {
                 // update is sink
                 if ((board[row][col] != null) && (board[row][col].equals("N"))){
                     if ((board[row][col-1] == null) && (board[row-1][col] == null)){
-                        isSink = null;
+                        isSink.clear();
                     }
 
                     else if ((board[row][col - 1] != null) && (board[row-1][col] != null)) {
                         if ((!board[row][col-1].equals("I")) && (!board[row-1][col].equals("I"))){
-                            isSink = null;
+                            isSink.clear();
                         }
                     } else if ((board[row][col - 1] != null)) {
                         if ((!board[row][col - 1].equals("I"))) {
-                            isSink = null;
+                            isSink.clear();
                         }
                     } else if ((board[row - 1][col] != null)) {
                         if ((!board[row-1][col].equals("I"))) {
-                            isSink = null;
+                            isSink.clear();
                         }
                     }
                 }
             }
         }
 
-        if (previousIsYou != isYou){
+        if (isYou != isYou){
             isYouChange = true;
         }
     }
 
     private void applyRules(){
-        for (var entity: entities.values()){
-            if (isYou != null) {
-                if (entity.contains(isYou)) {
+        for (var entity: entities.values()) {
+            if (!isYou.isEmpty()) {
+                boolean isYouing = false;
+                for (var isYouComponent : isYou) {
+                    if (entity.contains(isYouComponent)) {
+                        isYouing = true;
+                    }
+                }
+                if (isYouing) {
                     if (!entity.contains(ecs.Components.Movable.class)) {
                         entity.add(new ecs.Components.Movable(Movable.Direction.Stopped, MOVE_INTERVAL));
 
@@ -428,7 +526,6 @@ public class RuleManager extends System {
                         if (!won) {
                             particleSystem.isYouChange(position.getX(), position.getY());
                         }
-
                     }
 
                     if (!entity.contains(ecs.Components.KeyboardControlled.class)) {
@@ -456,8 +553,15 @@ public class RuleManager extends System {
                 }
 
             }
-            if (isStop != null) {
-                if (entity.contains(isStop)) {
+
+            if (!isStop.isEmpty()) {
+                boolean isStopping = false;
+                for (var isStopComponent : isStop) {
+                    if (entity.contains(isStopComponent)) {
+                        isStopping = true;
+                    }
+                }
+                if (isStopping) {
                     if (!entity.contains(ecs.Components.Stoppable.class)) {
                         entity.add(new ecs.Components.Stoppable());
                     }
@@ -476,8 +580,14 @@ public class RuleManager extends System {
                 }
             }
 
-            if (isPush != null) {
-                if (entity.contains(isPush)) {
+            if (!isPush.isEmpty()) {
+                boolean isPushing = false;
+                for (var isPushComponent: isPush) {
+                    if (entity.contains(isPushComponent)) {
+                        isPushing = true;
+                    }
+                }
+                if (isPushing) {
                     if (!entity.contains(ecs.Components.Pushable.class)) {
                         entity.add(new ecs.Components.Pushable());
                     }
@@ -496,13 +606,15 @@ public class RuleManager extends System {
                 }
             }
 
-            if (isWin != null) {
-                if (entity.contains(isWin)) {
-                    if (!entity.contains(ecs.Components.Winnable.class)){
-                        if (!won) {
-                            Position position = entity.get(ecs.Components.Position.class);
-                            particleSystem.isWinChange(position.getX(), position.getY());
-                        }
+            if (!isWin.isEmpty()) {
+                boolean isWinning = false;
+                for (var isWinComponent: isWin) {
+                    if (entity.contains(isWinComponent)) {
+                        isWinning = true;
+                    }
+                }
+                if (isWinning) {
+                    if (!entity.contains(ecs.Components.Winnable.class)) {
                         entity.add(new ecs.Components.Winnable());
                     }
                 } else {
@@ -516,9 +628,16 @@ public class RuleManager extends System {
                 }
             }
 
-            if (isKill != null) {
-                if (entity.contains(isKill)) {
-                    if (!entity.contains(ecs.Components.Killing.class)){
+            if (!isKill.isEmpty()) {
+                boolean isKilling = false;
+                for (var isKillComponent: isKill) {
+                    if (entity.contains(isKillComponent)) {
+                        isKilling = true;
+                    }
+                }
+
+                if (isKilling) {
+                    if (!entity.contains(ecs.Components.Killing.class)) {
                         entity.add(new ecs.Components.Killing());
                     }
                 } else {
@@ -532,9 +651,15 @@ public class RuleManager extends System {
                 }
             }
 
-            if (isSink != null) {
-                if (entity.contains(isSink)) {
-                    if (!entity.contains(ecs.Components.Sinking.class)){
+            if (!isSink.isEmpty()) {
+                boolean isSinking = false;
+                for (var isSinkComponent: isSink) {
+                    if (entity.contains(isSinkComponent)) {
+                        isSinking = true;
+                    }
+                }
+                if (isSinking) {
+                    if (!entity.contains(ecs.Components.Sinking.class)) {
                         entity.add(new ecs.Components.Sinking());
                     }
                 } else {
@@ -645,9 +770,11 @@ public class RuleManager extends System {
                         cheer.play();
 
                         for (Entity winningEntity: entities.values()){
-                            if (winningEntity.contains(isYou)){
-                                Position position = winningEntity.get(ecs.Components.Position.class);
-                                particleSystem.objectIsWin(position.getX(), position.getY());
+                            for (var isYouComponent: isYou) {
+                                if (winningEntity.contains(isYouComponent)) {
+                                    Position position = winningEntity.get(ecs.Components.Position.class);
+                                    particleSystem.objectIsWin(position.getX(), position.getY());
+                                }
                             }
                         }
                         this.won = true;
@@ -690,6 +817,7 @@ public class RuleManager extends System {
 
                 if ((killingX == isYouX) && (killingY == isYouY)){
                     // destroy component
+                    particleSystem.objectDeath(isYouX, isYouY);
                     destroyEntity(isYouEntity);
                 }
             }
@@ -697,6 +825,8 @@ public class RuleManager extends System {
     }
 
     private void destroyEntity(Entity entity){
+        Position position = entity.get(ecs.Components.Position.class);
+
         if (entity.contains(ecs.Components.Movable.class)){
             entity.remove(ecs.Components.Movable.class);
         }
@@ -753,6 +883,7 @@ public class RuleManager extends System {
                 for (var sinkable : sinkComponents) {
                     Position sinkablePosition = sinkable.get(ecs.Components.Position.class);
                     if ((entityPosition.getX() == sinkablePosition.getX()) && (entityPosition.getY() == sinkablePosition.getY())) {
+                        particleSystem.objectDeath(entityPosition.getX(), entityPosition.getY());
                         destroyEntity(sinkable);
                         destroyEntity(entity);
                     }
@@ -777,10 +908,19 @@ public class RuleManager extends System {
     }
 
     private void undo(){
+        isYou.clear();
+        isSink.clear();
+        isPush.clear();
+        isKill.clear();
+        isStop.clear();
+        isWin.clear();
         if (!undoStack.isEmpty()){
             // get previous gameStates from stack
             var previousState = undoStack.pop();
             for (var entity: entities.values()){
+                if (!entity.contains(ecs.Components.Text.class)) {
+                    destroyEntity(entity);
+                }
                 // previous states for each entity stored in the hash map
                 var previousEntityStates = previousState.get(entity.getId());
                 for (Component component: previousEntityStates){
@@ -812,9 +952,12 @@ public class RuleManager extends System {
         }
 
         for (var entity: entities.values()){
+
+            if (entity.contains(ecs.Components.KeyboardControlled.class)){
+                entity.remove(ecs.Components.KeyboardControlled.class);
+            }
             if (entity.contains(ecs.Components.Movable.class)){
-                Movable movable = entity.get(ecs.Components.Movable.class);
-                movable.input = Movable.Direction.Stopped;
+                entity.remove(ecs.Components.Movable.class);
             }
         }
         undoStack = new Stack<>();

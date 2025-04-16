@@ -112,7 +112,24 @@ public class ParticleSystem {
     }
 
     public void objectDeath(int x, int y) {
+        float left_edge_x = -0.5f + OFFSET_X + x * CELL_SIZE;
+        float top_edge_y = -0.5f + OFFSET_Y + y * CELL_SIZE;
 
+        float sizeMean = 0.01f;
+        float sizeStd = 0.005f;
+
+        float speedMean = 0.05f;
+        float speedStd = 0.1f;
+
+        float lifetimeMean = 0.1f;
+        float lifetimeStd = 0.1f;
+
+        for (int a = 0; a < 360; a++){
+            var particle = create(this.random.nextCircleVector(),
+                    new Vector2f(left_edge_x + (CELL_SIZE / 2), top_edge_y + (CELL_SIZE/2)),
+                    sizeMean, sizeStd, speedMean, speedStd, lifetimeMean, lifetimeStd);
+            particles.put(particle.name, particle);
+        }
     }
 
     public void objectIsWin(int x, int y) {
@@ -136,7 +153,8 @@ public class ParticleSystem {
                     new Vector2f(left_edge_x + (CELL_SIZE / 2), top_edge_y + (CELL_SIZE/2)),
                     sizeMean, sizeStd, speedMean, speedStd, lifetimeMean, lifetimeStd);
             particles.put(particle.name, particle);
-        }    }
+        }
+    }
 
 
     public Collection<Particle> getParticles() {
