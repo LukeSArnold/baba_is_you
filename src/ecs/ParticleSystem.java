@@ -48,10 +48,10 @@ public class ParticleSystem {
         float sizeMean = 0.005f;
         float sizeStd = 0.002f;
 
-        float speedMean = 0.005f;
-        float speedStd = 0.05f;
+        float speedMean = 0.0005f;
+        float speedStd = 0.005f;
 
-        float lifetimeMean = 0.2f;
+        float lifetimeMean = 0.3f;
         float lifetimeStd = 0.05f;
 
 

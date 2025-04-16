@@ -263,7 +263,7 @@ public class RuleManager extends System {
                                 case "R" -> isRock = this.componentHashMap.get(left_element);
                                 case "F" -> isFlag = this.componentHashMap.get(left_element);
                                 case "A" -> isWater = this.componentHashMap.get(left_element);
-                                case "L" -> isLava = this.componentHashMap.get(left_element);
+                                case "V" -> isLava = this.componentHashMap.get(left_element);
                                 case "B" -> isBaba = this.componentHashMap.get(left_element);
 
                             }
@@ -301,6 +301,14 @@ public class RuleManager extends System {
                         if ((!board[row][col - 1].equals("I")) && (!board[row - 1][col].equals("I"))) {
                             isStop = null;
                         }
+                    } else if ((board[row][col - 1] != null)) {
+                        if ((!board[row][col - 1].equals("I"))) {
+                            isStop = null;
+                        }
+                    } else if ((board[row - 1][col] != null)) {
+                        if ((!board[row-1][col].equals("I"))) {
+                            isStop = null;
+                        }
                     }
                 }
 
@@ -310,6 +318,14 @@ public class RuleManager extends System {
                         isYou = null;
                     } else if ((board[row][col - 1] != null) && (board[row-1][col] != null)) {
                         if ((!board[row][col - 1].equals("I")) && (!board[row - 1][col].equals("I"))) {
+                            isYou = null;
+                        }
+                    } else if ((board[row][col - 1] != null)) {
+                        if ((!board[row][col - 1].equals("I"))) {
+                            isYou = null;
+                        }
+                    } else if ((board[row - 1][col] != null)) {
+                        if ((!board[row-1][col].equals("I"))) {
                             isYou = null;
                         }
                     }
@@ -324,6 +340,14 @@ public class RuleManager extends System {
                         if ((!board[row][col - 1].equals("I")) && (!board[row - 1][col].equals("I"))) {
                             isPush = null;
                         }
+                    } else if ((board[row][col - 1] != null)) {
+                        if ((!board[row][col - 1].equals("I"))) {
+                            isPush = null;
+                        }
+                    } else if ((board[row - 1][col] != null)) {
+                        if ((!board[row-1][col].equals("I"))) {
+                            isPush = null;
+                        }
                     }
                 }
 
@@ -335,6 +359,14 @@ public class RuleManager extends System {
                         if ((!board[row][col - 1].equals("I")) && (!board[row - 1][col].equals("I"))) {
                             isWin = null;
                         }
+                    } else if ((board[row][col - 1] != null)) {
+                        if ((!board[row][col - 1].equals("I"))) {
+                            isWin = null;
+                        }
+                    } else if ((board[row - 1][col] != null)) {
+                        if ((!board[row-1][col].equals("I"))) {
+                            isWin = null;
+                        }
                     }
                 }
 
@@ -342,13 +374,19 @@ public class RuleManager extends System {
                 if ((board[row][col] != null) && (board[row][col].equals("K"))){
                     if ((board[row][col-1] == null) && (board[row-1][col] == null)){
                         isKill = null;
-                    }
-
-                    else if ((board[row][col - 1] != null) && (board[row-1][col] != null)) {
+                    } else if ((board[row][col - 1] != null) && (board[row-1][col] != null)) {
                         if ((!board[row][col-1].equals("I")) && (!board[row-1][col].equals("I"))){
-                                isKill = null;
-                            }
+                            isKill = null;
                         }
+                    } else if ((board[row][col - 1] != null)) {
+                        if ((!board[row][col - 1].equals("I"))) {
+                            isKill = null;
+                        }
+                    } else if ((board[row - 1][col] != null)) {
+                        if ((!board[row-1][col].equals("I"))) {
+                            isKill = null;
+                        }
+                    }
                 }
 
                 // update is sink
@@ -359,6 +397,14 @@ public class RuleManager extends System {
 
                     else if ((board[row][col - 1] != null) && (board[row-1][col] != null)) {
                         if ((!board[row][col-1].equals("I")) && (!board[row-1][col].equals("I"))){
+                            isSink = null;
+                        }
+                    } else if ((board[row][col - 1] != null)) {
+                        if ((!board[row][col - 1].equals("I"))) {
+                            isSink = null;
+                        }
+                    } else if ((board[row - 1][col] != null)) {
+                        if ((!board[row-1][col].equals("I"))) {
                             isSink = null;
                         }
                     }
@@ -480,7 +526,12 @@ public class RuleManager extends System {
                         entity.remove(ecs.Components.Killing.class);
                     }
                 }
+            } else {
+                if (entity.contains(ecs.Components.Killing.class)) {
+                    entity.remove(ecs.Components.Killing.class);
+                }
             }
+
             if (isSink != null) {
                 if (entity.contains(isSink)) {
                     if (!entity.contains(ecs.Components.Sinking.class)){
