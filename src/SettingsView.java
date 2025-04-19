@@ -124,7 +124,7 @@ public class SettingsView extends GameStateView {
 
         if (this.config.initialized) {
             // render top elements
-            top = renderMenuItem(
+            renderMenuItem(
                     currentSelection == SettingsView.MenuState.Up ? fontSelected : fontMenu,
                     "Up",
                     top,
@@ -136,6 +136,7 @@ public class SettingsView extends GameStateView {
                     "" + getKeyName(this.config.up),
                     top,
                     HEIGHT_MENU_ITEM,
+                    0.25f,
                     currentSelection == SettingsView.MenuState.Up ?
                             Color.GREEN : Color.BLUE);
 
@@ -146,28 +147,26 @@ public class SettingsView extends GameStateView {
                     "Left",
                     top,
                     HEIGHT_MENU_ITEM,
-                    -0.25f,
                     currentSelection == SettingsView.MenuState.Left ?
                             Color.YELLOW : Color.BLUE);
 
 
-            top = renderMenuItem(
+            top = renderMenuItem(currentSelection == SettingsView.MenuState.Left ? fontSelected : fontMenu,
+                    "" + getKeyName(this.config.left),
+                    top,
+                    HEIGHT_MENU_ITEM,
+                    0.25f,
+                    currentSelection == SettingsView.MenuState.Left ?
+                            Color.GREEN : Color.BLUE);
+
+            renderMenuItem(
                     currentSelection == MenuState.Right ? fontSelected : fontMenu,
                     "Right",
                     top,
                     HEIGHT_MENU_ITEM,
-                    0.25f,
+
                     currentSelection == SettingsView.MenuState.Right ?
                             Color.YELLOW : Color.BLUE);
-
-
-            renderMenuItem(currentSelection == SettingsView.MenuState.Left ? fontSelected : fontMenu,
-                    "" + getKeyName(this.config.left),
-                    top,
-                    HEIGHT_MENU_ITEM,
-                    -0.25f,
-                    currentSelection == SettingsView.MenuState.Left ?
-                            Color.GREEN : Color.BLUE);
 
 
             top = renderMenuItem(currentSelection == SettingsView.MenuState.Left ? fontSelected : fontMenu,
@@ -179,7 +178,7 @@ public class SettingsView extends GameStateView {
                             Color.GREEN : Color.BLUE);
 
             // render down elements
-            top = renderMenuItem(
+            renderMenuItem(
                     currentSelection == SettingsView.MenuState.Down ? fontSelected : fontMenu,
                     "Down",
                     top,
@@ -192,10 +191,11 @@ public class SettingsView extends GameStateView {
                     "" + getKeyName(this.config.down),
                     top,
                     HEIGHT_MENU_ITEM,
+                    0.25f,
                     currentSelection == SettingsView.MenuState.Down ?
                             Color.GREEN : Color.BLUE);
 
-            top = renderMenuItem(currentSelection == MenuState.Undo ? fontSelected : fontMenu,
+            renderMenuItem(currentSelection == MenuState.Undo ? fontSelected : fontMenu,
                     "Undo",
                     top,
                     HEIGHT_MENU_ITEM,
@@ -206,20 +206,22 @@ public class SettingsView extends GameStateView {
                     "" + getKeyName(this.config.undo),
                     top,
                     HEIGHT_MENU_ITEM,
+                    0.25f,
                     currentSelection == SettingsView.MenuState.Undo ?
                             Color.GREEN : Color.BLUE);
 
-            top = renderMenuItem(currentSelection == MenuState.Restart ? fontSelected : fontMenu,
+            renderMenuItem(currentSelection == MenuState.Restart ? fontSelected : fontMenu,
                     "Restart",
                     top,
                     HEIGHT_MENU_ITEM,
                     currentSelection == MenuState.Restart ?
                             Color.YELLOW : Color.BLUE);
 
-            top = renderMenuItem(currentSelection == MenuState.Restart ? fontSelected : fontMenu,
+            renderMenuItem(currentSelection == MenuState.Restart ? fontSelected : fontMenu,
                     "" + getKeyName(this.config.restart),
                     top,
                     HEIGHT_MENU_ITEM,
+                    0.25f,
                     currentSelection == SettingsView.MenuState.Restart ?
                             Color.GREEN : Color.BLUE);
         }
@@ -227,7 +229,7 @@ public class SettingsView extends GameStateView {
 
     private float renderMenuItem(Font font, String text, float top, float height, Color color) {
         float width = font.measureTextWidth(text, height);
-        graphics.drawTextByHeight(font, text, 0.0f - width / 2, top, height, color);
+        graphics.drawTextByHeight(font, text, 0.0f - 0.3f, top, height, color);
 
         return top + height;
     }
@@ -235,7 +237,7 @@ public class SettingsView extends GameStateView {
     private float renderMenuItem(Font font, String text, float top, float height, float left, Color color) {
         float width = font.measureTextWidth(text, height);
 
-        graphics.drawTextByHeight(font, text, left - width / 2, top, height, color);
+        graphics.drawTextByHeight(font, text, left - 0.3f, top, height, color);
 
         return top + height;
     }

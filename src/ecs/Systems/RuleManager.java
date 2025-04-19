@@ -20,7 +20,7 @@ public class RuleManager extends System {
     private final KeyBoardConfig keyBoardConfig;
 
     // settings for updating new Keyboard controlled elements after rule changes
-    final double MOVE_INTERVAL = .15; // seconds
+    final double MOVE_INTERVAL = .1; // seconds
     private double intervalElapsed = 0;
 
     // window needed to detect keyboard inputs

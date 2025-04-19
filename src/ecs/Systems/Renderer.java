@@ -50,11 +50,21 @@ public class Renderer extends System {
 
         var color = Color.WHITE;
 
-        Rectangle subImage = new Rectangle(
-                appearance.subImageWidth * appearance.subImageIndex,
-                0,
-                appearance.subImageWidth,
-                appearance.spriteSheet.getHeight());
+        Rectangle subImage;
+        if (entity.contains(ecs.Components.IsFloor.class)){
+            subImage = new Rectangle(
+                    appearance.subImageWidth * appearance.subImageIndex,
+                    0,
+                    appearance.subImageWidth,
+                    appearance.spriteSheet.getHeight());
+        } else {
+            subImage = new Rectangle(
+                    appearance.subImageWidth * appearance.subImageIndex,
+                    0,
+                    appearance.subImageWidth,
+                    appearance.spriteSheet.getHeight(),
+                    -1);
+        }
 
         Vector2f center = new Vector2f(area.left + (float) appearance.subImageWidth / 2, area.top + (float) appearance.subImageWidth / 2);
         graphics.draw(appearance.spriteSheet, area, subImage, 0, center, color);

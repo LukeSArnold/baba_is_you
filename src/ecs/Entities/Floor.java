@@ -9,6 +9,7 @@ public class Floor {
 
         floor.add(new ecs.Components.Appearance(square, new float[]{0.2f, 0.2f, 0.2f}));
         floor.add(new ecs.Components.Position(x, y));
+        floor.add(new ecs.Components.IsFloor());
 
         return floor;
     }
